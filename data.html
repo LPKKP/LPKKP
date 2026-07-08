@@ -1,0 +1,2944 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data Laporan - KKP</title>
+    <link rel="stylesheet" href="common.css">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #6e8efb, #a777e3);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .header {
+            width: 100%;
+            max-width: 1400px;
+            background: #4a6cf7;
+            color: white;
+            padding: 20px;
+            text-align: center;
+            border-radius: 10px 10px 0 0;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .header h1 {
+            font-size: 24px;
+            font-weight: 600;
+        }
+        
+        .logout-btn {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        
+        .logout-btn:hover {
+            background: #c82333;
+        }
+        
+        .back-btn {
+            background: #6c757d;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s;
+            text-decoration: none;
+            display: inline-block;
+            margin-right: 10px;
+        }
+        
+        .back-btn:hover {
+            background: #5a6268;
+        }
+        
+        .data-container {
+            width: 100%;
+            max-width: 1400px;
+            background: white;
+            border-radius: 0 0 10px 10px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            padding: 30px;
+            margin: 0 auto;
+            margin-bottom: 20px;
+            overflow-x: auto;
+        }
+        
+        .page-title {
+            text-align: center;
+            margin-bottom: 25px;
+            color: #4a6cf7;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .data-table th {
+            background-color: #4a6cf7;
+            color: white;
+            padding: 15px;
+            text-align: center;
+            font-weight: 600;
+            position: sticky;
+            top: 0;
+            font-size: 14px;
+            cursor: pointer;
+            user-select: none;
+            transition: background-color 0.3s;
+        }
+        
+        .data-table th.sortable:hover {
+            background-color: #3a5cd5;
+        }
+        
+        .data-table th.sort-asc {
+            background-color: #2a4cb3;
+        }
+        
+        .data-table th.sort-desc {
+            background-color: #2a4cb3;
+        }
+        
+        .data-table th .sort-indicator {
+            margin-left: 5px;
+            font-size: 12px;
+        }
+        
+        .data-table td {
+            padding: 15px;
+            border-bottom: 1px solid #ddd;
+            font-size: 14px;
+            text-align: center;
+        }
+        
+        .data-table tr:nth-child(even) {
+            background-color: #f8f9fa;
+        }
+        
+        .data-table tr:hover {
+            background-color: #f1f3ff;
+        }
+        
+        .table-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        
+        .search-box {
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+            width: 300px;
+            max-width: 100%;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+        
+        .search-box:focus {
+            outline: none;
+            border-color: #4a6cf7;
+            box-shadow: 0 0 0 3px rgba(74, 108, 247, 0.1);
+        }
+        
+        .search-box.loading {
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%234a6cf7" width="18px" height="18px"><path d="M12 4V2A10 10 0 002 12h2a8 8 0 018-8z"/></svg>');
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            background-size: 16px;
+        }
+        
+        .entries-info {
+            color: #666;
+            font-size: 14px;
+        }
+        
+        .pagination {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .pagination button {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .pagination button:hover:not(:disabled) {
+            background: #e9ecef;
+        }
+        
+        .pagination button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .pagination button.active {
+            background: #4a6cf7;
+            color: white;
+            border-color: #4a6cf7;
+        }
+        
+        .pagination-info {
+            margin: 0 15px;
+            color: #666;
+            font-size: 14px;
+        }
+        
+        /* Button Container Styles */
+        .button-container {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+            flex-wrap: nowrap;
+        }
+        
+        .view-btn, .download-btn, .export-btn, .export-all-btn {
+            border: none;
+            padding: 8px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 500;
+            transition: all 0.3s;
+            white-space: nowrap;
+            min-width: 80px;
+        }
+        
+        .view-btn {
+            background: #17a2b8;
+            color: white;
+        }
+        
+        .view-btn:hover {
+            background: #138496;
+            transform: translateY(-1px);
+        }
+        
+        .download-btn {
+            background: #28a745;
+            color: white;
+        }
+        
+        .download-btn:hover {
+            background: #218838;
+            transform: translateY(-1px);
+        }
+        
+        .export-btn {
+            background: #6f42c1;
+            color: white;
+        }
+        
+        .export-btn:hover {
+            background: #5e35b1;
+            transform: translateY(-1px);
+        }
+        
+        /* Export All Button Styles */
+        .export-all-btn {
+            background: #fd7e14;
+            color: white;
+        }
+        
+        .export-all-btn:hover {
+            background: #e96a10;
+            transform: translateY(-1px);
+        }
+        
+        .export-all-btn:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        /* Clear Button Styles */
+        .clear-btn {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            white-space: nowrap;
+        }
+        
+        .clear-btn:hover {
+            background: #c82333;
+            transform: translateY(-1px);
+        }
+        
+        .clear-btn:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .lampiran-btn {
+            background: #6f42c1;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 500;
+            transition: all 0.3s;
+            white-space: nowrap;
+        }
+        .lampiran-btn:hover {
+            background: #5e35b1;
+            transform: translateY(-1px);
+        }
+        
+        /* Lightbox gallery (Lampiran) */
+        .lightbox-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.92);
+            z-index: 10000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .lightbox-overlay.open { display: flex; }
+        .lightbox-content {
+            position: relative;
+            max-width: 95vw;
+            max-height: 95vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .lightbox-content img {
+            max-width: 90vw;
+            max-height: 80vh;
+            object-fit: contain;
+            border-radius: 8px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+        }
+        .lightbox-caption {
+            color: #fff;
+            margin-top: 12px;
+            text-align: center;
+            font-size: 14px;
+            max-width: 90vw;
+        }
+        .lightbox-close {
+            position: absolute;
+            top: -40px;
+            right: 0;
+            background: rgba(255,255,255,0.2);
+            color: #fff;
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            font-size: 24px;
+            cursor: pointer;
+            line-height: 1;
+            transition: background 0.2s;
+        }
+        .lightbox-close:hover { background: rgba(255,255,255,0.3); }
+        .lightbox-prev, .lightbox-next {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(255,255,255,0.2);
+            color: #fff;
+            border: none;
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            font-size: 24px;
+            cursor: pointer;
+            transition: background 0.2s;
+            line-height: 1;
+        }
+        .lightbox-prev:hover, .lightbox-next:hover { background: rgba(255,255,255,0.35); }
+        .lightbox-prev { left: -60px; }
+        .lightbox-next { right: -60px; }
+        .lightbox-counter { color: rgba(255,255,255,0.8); font-size: 13px; margin-top: 8px; }
+        @media (max-width: 768px) {
+            .lightbox-prev { left: 10px; }
+            .lightbox-next { right: 10px; }
+        }
+        
+        /* Enhanced Filter Controls */
+        .filter-controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .filter-select {
+            padding: 10px 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+            background: white;
+            transition: border-color 0.3s;
+        }
+        
+        .filter-select:focus {
+            outline: none;
+            border-color: #4a6cf7;
+        }
+        
+        .date-range-container {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        
+        .date-range-separator {
+            color: #666;
+            font-weight: bold;
+        }
+        
+        /* Enhanced Search Results Indicator */
+        .search-results-info {
+            background: #e7f3ff;
+            border: 1px solid #b3d9ff;
+            border-radius: 5px;
+            padding: 10px 15px;
+            margin-bottom: 15px;
+            font-size: 14px;
+            color: #0066cc;
+        }
+        
+        .search-results-info strong {
+            color: #004d99;
+        }
+        
+        /* PDF Viewer Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.9);
+        }
+        
+        .modal-content {
+            position: relative;
+            background-color: #fefefe;
+            margin: 2% auto;
+            padding: 0;
+            border: none;
+            border-radius: 10px;
+            width: 90%;
+            height: 90vh;
+            max-width: 1200px;
+        }
+        
+        .close {
+            position: absolute;
+            top: 15px;
+            right: 25px;
+            color: #fff;
+            font-size: 40px;
+            font-weight: bold;
+            cursor: pointer;
+            z-index: 1001;
+            background: rgba(0,0,0,0.5);
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .close:hover,
+        .close:focus {
+            color: #fff;
+            background: rgba(0,0,0,0.7);
+            text-decoration: none;
+        }
+        
+        .pdf-viewer {
+            width: 100%;
+            height: 100%;
+            border: none;
+            border-radius: 10px;
+        }
+        
+        .modal-header {
+            position: absolute;
+            top: 15px;
+            left: 25px;
+            color: white;
+            font-size: 18px;
+            font-weight: bold;
+            z-index: 1001;
+            background: rgba(0,0,0,0.5);
+            padding: 10px 15px;
+            border-radius: 5px;
+        }
+        
+        /* Confirmation Modal Styles */
+        .confirmation-modal {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.7);
+        }
+        
+        .confirmation-content {
+            background-color: #fefefe;
+            margin: 15% auto;
+            padding: 30px;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 500px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+        
+        .confirmation-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 25px;
+        }
+        
+        .confirm-btn {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s;
+            min-width: 100px;
+        }
+        
+        .confirm-btn:hover {
+            background: #c82333;
+        }
+        
+        .cancel-btn {
+            background: #6c757d;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s;
+            min-width: 100px;
+        }
+        
+        .cancel-btn:hover {
+            background: #5a6268;
+        }
+        
+        .confirmation-message {
+            font-size: 18px;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        
+        .confirmation-warning {
+            font-size: 14px;
+            color: #dc3545;
+            font-weight: 600;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+            font-size: 16px;
+        }
+        .loading .spinner {
+            display: inline-block;
+            width: 24px;
+            height: 24px;
+            border: 3px solid rgba(74, 108, 247, 0.2);
+            border-top-color: #4a6cf7;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            vertical-align: middle;
+            margin-right: 10px;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .pdf-modal-loading {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: #1a1a2e;
+            color: #fff;
+            border-radius: 10px;
+            z-index: 10;
+        }
+        .pdf-modal-loading.hidden { display: none; }
+        .pdf-modal-loading .modal-load-spinner {
+            width: 48px;
+            height: 48px;
+            border: 4px solid rgba(255,255,255,0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin-bottom: 12px;
+        }
+        
+        .error-message {
+            text-align: center;
+            padding: 20px;
+            color: #dc3545;
+            font-size: 16px;
+        }
+        
+        .accident-details {
+            font-size: 12px;
+            color: #666;
+            margin-top: 5px;
+        }
+        
+        /* Loading indicator for export */
+        .export-loading {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid #ffffff;
+            border-radius: 50%;
+            border-top-color: transparent;
+            animation: spin 1s ease-in-out infinite;
+            margin-right: 8px;
+            vertical-align: middle;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        /* Quick Actions */
+        .quick-actions {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .action-btn {
+            background: #6c757d;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.3s;
+        }
+        
+        .action-btn:hover {
+            background: #5a6268;
+            transform: translateY(-1px);
+        }
+        
+        .action-btn.active {
+            background: #4a6cf7;
+        }
+        
+        /* Export Options Styles */
+        .export-options {
+            margin: 15px 0;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border: 1px solid #e9ecef;
+        }
+        
+        .export-options strong {
+            display: block;
+            margin-bottom: 10px;
+            color: #495057;
+            font-size: 14px;
+        }
+        
+        .export-options .action-btn {
+            margin-right: 8px;
+            margin-bottom: 5px;
+        }
+        
+        @media (max-width: 1024px) {
+            .data-container {
+                max-width: 95%;
+                padding: 20px;
+            }
+            
+            .header {
+                max-width: 95%;
+            }
+            
+            .data-table th,
+            .data-table td {
+                padding: 12px;
+                font-size: 13px;
+            }
+            
+            .view-btn, .download-btn, .export-btn, .export-all-btn {
+                padding: 6px 10px;
+                font-size: 12px;
+                min-width: 70px;
+            }
+            
+            .filter-controls {
+                gap: 8px;
+            }
+            
+            .date-range-container {
+                flex-direction: column;
+                gap: 5px;
+            }
+            
+            .date-range-separator {
+                display: none;
+            }
+            
+            .export-options .action-btn {
+                margin-right: 5px;
+                font-size: 12px;
+                padding: 6px 10px;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+                gap: 15px;
+                padding: 15px;
+            }
+            
+            .table-controls {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 10px;
+            }
+            
+            .search-box {
+                width: 100%;
+                margin-bottom: 10px;
+            }
+            
+            .data-table {
+                font-size: 12px;
+                min-width: 780px;
+                display: table;
+            }
+            
+            .data-table th, 
+            .data-table td {
+                padding: 8px 10px;
+                font-size: 12px;
+                white-space: nowrap;
+            }
+            
+            .button-container {
+                flex-direction: column;
+                gap: 5px;
+            }
+            
+            .view-btn, .download-btn, .export-btn, .export-all-btn {
+                width: 100%;
+                text-align: center;
+            }
+            
+            .modal-content {
+                width: 95%;
+                height: 85vh;
+                margin: 5% auto;
+            }
+            
+            .close {
+                top: 10px;
+                right: 15px;
+                font-size: 30px;
+                width: 40px;
+                height: 40px;
+            }
+            
+            .modal-header {
+                top: 10px;
+                left: 15px;
+                font-size: 14px;
+            }
+            
+            .filter-controls {
+                flex-direction: column;
+            }
+            
+            .filter-select, .clear-btn, .export-btn, .export-all-btn {
+                width: 100%;
+                text-align: center;
+            }
+            
+            .confirmation-content {
+                margin: 20% auto;
+                padding: 20px;
+                width: 95%;
+            }
+            
+            .confirmation-buttons {
+                flex-direction: column;
+            }
+            
+            .quick-actions {
+                flex-direction: column;
+            }
+            
+            .action-btn {
+                width: 100%;
+                text-align: center;
+            }
+            
+            .export-options .action-btn {
+                width: 100%;
+                margin-right: 0;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .data-table {
+                font-size: 11px;
+            }
+            
+            .data-table th, 
+            .data-table td {
+                padding: 6px 8px;
+                font-size: 11px;
+            }
+            
+            .view-btn, .download-btn, .export-btn, .export-all-btn {
+                font-size: 11px;
+                padding: 5px 8px;
+                min-width: 60px;
+            }
+            
+            .page-title h2 {
+                font-size: 18px;
+            }
+            
+            .page-title p {
+                font-size: 14px;
+            }
+            
+            .confirmation-message {
+                font-size: 16px;
+            }
+            
+            .confirm-btn, .cancel-btn {
+                width: 100%;
+            }
+        }
+    </style>
+
+    <!-- External libraries for PDF generation -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+    <script src="pdf-report.js"></script>
+
+    <script src="config.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-firestore-compat.js"></script>
+    <script src="common.js"></script>
+    <script src="audit.js"></script>
+</head>
+<body>
+    <!-- PDF Viewer Modal -->
+    <div id="pdfModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <div class="modal-header" id="pdfTitle">KKP Report</div>
+            <div id="pdfModalLoading" class="pdf-modal-loading">
+                <div class="modal-load-spinner"></div>
+                <span>Menjana PDF...</span>
+            </div>
+            <iframe id="pdfViewer" class="pdf-viewer" frameborder="0"></iframe>
+        </div>
+    </div>
+
+    <!-- Lampiran (Images) Lightbox -->
+    <div id="lampiranLightbox" class="lightbox-overlay" aria-hidden="true">
+        <div class="lightbox-content">
+            <button type="button" class="lightbox-close" id="lampiranLightboxClose" aria-label="Tutup">&times;</button>
+            <button type="button" class="lightbox-prev" id="lampiranLightboxPrev" aria-label="Sebelumnya">&lsaquo;</button>
+            <img id="lampiranLightboxImg" src="" alt="">
+            <button type="button" class="lightbox-next" id="lampiranLightboxNext" aria-label="Seterusnya">&rsaquo;</button>
+            <div id="lampiranLightboxCaption" class="lightbox-caption"></div>
+            <div id="lampiranLightboxCounter" class="lightbox-counter"></div>
+        </div>
+    </div>
+
+    <!-- Clear Data Confirmation Modal -->
+    <div id="clearDataModal" class="confirmation-modal">
+        <div class="confirmation-content">
+            <div class="confirmation-message">Are you sure you want to clear ALL data?</div>
+            <div class="confirmation-warning">This action cannot be undone!</div>
+            <div class="confirmation-buttons">
+                <button class="confirm-btn" id="confirmClearBtn">Yes, Clear All</button>
+                <button class="cancel-btn" id="cancelClearBtn">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="header">
+        <h1>Data Laporan KKP</h1>
+        <div>
+            <a href="index.html" class="back-btn">Laman Utama</a>
+            <a href="profile.html" class="back-btn" style="margin-right:8px;">Profil</a>
+            <button class="logout-btn" id="logoutBtn">Log Keluar</button>
+        </div>
+    </div>
+    
+    <div class="data-container">
+        <nav class="breadcrumb" aria-label="Navigasi"><a href="index.html">Laman Utama</a> &gt; <strong>Data Laporan</strong></nav>
+        <div class="page-title">
+            <h2>Data Laporan KKP</h2>
+            <p>View and manage all submitted KKP reports</p>
+        </div>
+        
+        <!-- Quick Actions -->
+        <div class="quick-actions">
+            <button class="action-btn" id="sortNewestBtn">Sort: Newest First</button>
+            <button class="action-btn" id="sortOldestBtn">Sort: Oldest First</button>
+            <button class="action-btn" id="sortDivisionBtn">Sort: Division A-Z</button>
+            <button class="action-btn" id="clearFiltersBtn">Clear All Filters</button>
+        </div>
+        
+        <!-- Enhanced Filter Controls -->
+        <div class="filter-controls">
+            <select class="filter-select" id="divisionFilter">
+                <option value="">All Divisions</option>
+            </select>
+            <select class="filter-select" id="quarterFilter">
+                <option value="">All Quarters</option>
+                <option value="Suku 1">Suku 1</option>
+                <option value="Suku 2">Suku 2</option>
+                <option value="Suku 3">Suku 3</option>
+                <option value="Suku 4">Suku 4</option>
+            </select>
+            
+            <!-- Date Range Filter -->
+            <div class="date-range-container">
+                <input type="date" class="filter-select" id="startDateFilter" placeholder="Start Date">
+                <span class="date-range-separator">to</span>
+                <input type="date" class="filter-select" id="endDateFilter" placeholder="End Date">
+            </div>
+            
+            <button class="export-btn" id="exportBtn">Export Current Data</button>
+            <button class="export-all-btn" id="exportAllBtn">Export All Data</button>
+            <button class="clear-btn" id="clearDataBtn">Clear All Data</button>
+        </div>
+        
+        <!-- Export Options -->
+        <!-- ON HOLD -->
+        <!-- <div class="export-options">
+            <strong>Pilihan Eksport:</strong>
+            <button class="action-btn" id="exportSummaryBtn">Ringkasan</button>
+            <button class="action-btn" id="exportQuarterlyBtn">Mengikut Suku</button>
+            <button class="action-btn" id="exportDetailedBtn">Terperinci</button>
+            <button class="action-btn" id="exportAllDetailedBtn">Semua Data Terperinci</button>
+        </div> -->
+        
+        <!-- Search Results Info -->
+        <div id="searchResultsInfo" class="search-results-info" style="display: none;">
+            Showing <strong id="resultsCount">0</strong> of <strong id="totalCount">0</strong> reports
+            <span id="searchQueryInfo" style="display: none;"> for "<strong id="queryText"></strong>"</span>
+            <span id="dateRangeInfo" style="display: none;"> within selected date range</span>
+        </div>
+        
+        <div class="table-controls">
+            <div class="entries-info">
+                Show <select id="entriesSelect">
+                    <option value="10">10</option>
+                    <option value="25">25</option>
+                    <option value="50">50</option>
+                    <option value="100">100</option>
+                </select> entries
+            </div>
+            
+            <div>
+                <input type="text" class="search-box" id="searchInput" placeholder="Search reports..." aria-label="Search reports">
+            </div>
+        </div>
+        
+        <table class="data-table" id="dataTable">
+            <thead>
+                <tr>
+                    <th class="sortable" data-sort="index">No. <span class="sort-indicator">↕</span></th>
+                    <th class="sortable" data-sort="division">Bahagian/Unit <span class="sort-indicator">↕</span></th>
+                    <th class="sortable" data-sort="quarter">Suku <span class="sort-indicator">↕</span></th>
+                    <!-- Kematian column removed -->
+                    <!-- NEW COLUMNS -->
+                    <th class="sortable" data-sort="majorAccidents">Kes Kemalangan Major <span class="sort-indicator">↕</span></th>
+                    <th class="sortable" data-sort="minorAccidents">Kes Kemalangan Minor <span class="sort-indicator">↕</span></th>
+                    <th class="sortable" data-sort="noInjuryAccidents">Kes Kemalangan Tiada Kecederaan <span class="sort-indicator">↕</span></th>
+                    <!-- END NEW COLUMNS -->
+                    <th class="sortable" data-sort="certifierName">Di sediakan oleh <span class="sort-indicator">↕</span></th>
+                    <th class="sortable" data-sort="reportDate">Tarikh <span class="sort-indicator">↕</span></th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="tableBody">
+                <tr>
+                    <td colspan="9" class="loading"><span class="spinner"></span> Memuatkan laporan...</td>
+                </tr>
+            </tbody>
+        </table>
+        
+        <div class="pagination" id="pagination">
+            <button id="firstBtn">First</button>
+            <button id="prevBtn">Previous</button>
+            <span class="pagination-info" id="pageInfo">Page 1 of 1</span>
+            <button id="nextBtn">Next</button>
+            <button id="lastBtn">Last</button>
+        </div>
+    </div>
+
+    <script>
+        const db = getDb();
+        const auth = getAuth();
+        if (window.jspdf && window.jspdf.jsPDF) window.jsPDF = window.jspdf.jsPDF;
+
+        // Get DOM elements
+        const logoutBtn = document.getElementById('logoutBtn');
+        const searchInput = document.getElementById('searchInput');
+        const tableBody = document.getElementById('tableBody');
+        const pdfModal = document.getElementById('pdfModal');
+        const pdfViewer = document.getElementById('pdfViewer');
+        const pdfTitle = document.getElementById('pdfTitle');
+        const closeModal = document.querySelector('.close');
+        const exportBtn = document.getElementById('exportBtn');
+        const exportAllBtn = document.getElementById('exportAllBtn');
+        const divisionFilter = document.getElementById('divisionFilter');
+        const quarterFilter = document.getElementById('quarterFilter');
+        const startDateFilter = document.getElementById('startDateFilter');
+        const endDateFilter = document.getElementById('endDateFilter');
+        const searchResultsInfo = document.getElementById('searchResultsInfo');
+        const resultsCount = document.getElementById('resultsCount');
+        const totalCount = document.getElementById('totalCount');
+        const searchQueryInfo = document.getElementById('searchQueryInfo');
+        const queryText = document.getElementById('queryText');
+        const dateRangeInfo = document.getElementById('dateRangeInfo');
+        
+        // Quick action buttons
+        const sortNewestBtn = document.getElementById('sortNewestBtn');
+        const sortOldestBtn = document.getElementById('sortOldestBtn');
+        const sortDivisionBtn = document.getElementById('sortDivisionBtn');
+        const clearFiltersBtn = document.getElementById('clearFiltersBtn');
+        
+        // Clear data elements
+        const clearDataBtn = document.getElementById('clearDataBtn');
+        const clearDataModal = document.getElementById('clearDataModal');
+        const confirmClearBtn = document.getElementById('confirmClearBtn');
+        const cancelClearBtn = document.getElementById('cancelClearBtn');
+        
+        // Export option buttons
+        const exportSummaryBtn = document.getElementById('exportSummaryBtn');
+        const exportQuarterlyBtn = document.getElementById('exportQuarterlyBtn');
+        const exportDetailedBtn = document.getElementById('exportDetailedBtn');
+        const exportAllDetailedBtn = document.getElementById('exportAllDetailedBtn');
+        
+        // Client-side filtering variables
+        let allReports = [];
+        let filteredReports = [];
+        let currentReports = [];
+        let currentPage = 1;
+        let entriesPerPage = 10;
+        let sortColumn = 'createdAt';
+        let sortDirection = 'desc';
+        let totalReports = 0;
+        let searchTimeout = null;
+        let isSearching = false;
+
+        // Auth guard: require login; admins see all reports, users see only their division
+
+        // Export configuration options
+        const exportOptions = {
+            format: 'detailed', // 'summary', 'quarterly', 'detailed'
+            includeMetadata: true,
+            groupBy: 'none' // 'quarter', 'division', 'none'
+        };
+
+        // =========================================================================
+        // ABBREVIATION SYSTEM FOR HEADERS A1 TO D6
+        // =========================================================================
+
+        // Function to create abbreviation from header text (first letters of each word)
+        function createAbbreviation(fullHeader) {
+            // Remove the prefix (A1., B1.1, etc.)
+            const parts = fullHeader.split('. ');
+            if (parts.length < 2) return fullHeader;
+            
+            const prefix = parts[0] + '. ';
+            const description = parts.slice(1).join('. ');
+            
+            // Get first letter of each word in the description
+            const words = description.split(' ');
+            const abbreviation = words.map(word => {
+                // Take first letter, skip parentheses and special chars
+                return word.charAt(0).toUpperCase();
+            }).join('');
+            
+            return prefix + abbreviation;
+        }
+
+        // Mapping of full headers to their abbreviations (Section A A1–A3, B, C, D)
+        const headerAbbreviations = {
+            // Section A: STATISTIK
+            'A1. Jumlah Bilangan Pekerja': 'A1. JBP',
+            'A2. Jumlah Cuti Sakit Pekerja Disebabkan Kemalangan': 'A2. JCSPDK',
+            'A3. Jumlah cuti sakit pekerja akibat penyakit berjangkit pekerjaan': 'A3. JCSPPBP',
+            
+            // Section B: REKOD KES KEMALANGAN
+            'B1.1 Kes Kematian': 'B1.1 KK',
+            'B1.2 Kes Kemalangan Parah': 'B1.2 KKP',
+            'B2.1 Kes Rawatan Perubatan (Cuti Sakit < 5 Hari)': 'B2.1 KRP',
+            'B2.2 Kes Pertolongan Cemas': 'B2.2 KPC',
+            'B3.1 Kebakaran': 'B3.1 KB',
+            'B3.2 Kerosakan Harta Benda': 'B3.2 KHB',
+            'B3.3 Kejadian Hampir (Near Miss)': 'B3.3 KHNM',
+            'B3.4 Lain-lain insiden': 'B3.4 LI',
+            
+            // Section C: REKOD KES BERKAITAN KESIHATAN
+            'C1. Kes Penyakit Pekerjaan': 'C1. KPP',
+            'C2. Kes Penyakit Berjangkit': 'C2. KPB',
+            
+            // Section D: PROGRAM KKP
+            'D1. Jumlah Mesyuarat KKP': 'D1. JMKKP',
+            'D2. Jumlah Latihan KKP': 'D2. JLKKP',
+            'D3. Jumlah Taklimat/Toolbox': 'D3. JTT',
+            'D4. Jumlah Pemeriksaan KKP': 'D4. JPKKP',
+            'D5. Pelaporan UAUC': 'D5. PUAUC',
+            'D6. Lain-lain Aktiviti KKP': 'D6. LAKKP'
+        };
+
+        // Function to get abbreviation for a header
+        function getAbbreviation(fullHeader) {
+            return headerAbbreviations[fullHeader] || fullHeader;
+        }
+
+        // Function to add legend section to CSV
+        function addLegendToCsv(csvRows) {
+            csvRows.push('');
+            csvRows.push('LEGENDA / KEY:');
+            
+            // Add abbreviations for each section
+            const sections = [
+                { title: 'SEKSYEN A: STATISTIK', items: [
+                    'A1. JBP = A1. Jumlah Bilangan Pekerja',
+                    'A2. JCSPDK = A2. Jumlah Cuti Sakit Pekerja Disebabkan Kemalangan',
+                    'A3. JCSPPBP = A3. Jumlah cuti sakit pekerja akibat penyakit berjangkit pekerjaan'
+                ]},
+                { title: 'SEKSYEN B: REKOD KES KEMALANGAN', items: [
+                    'B1.1 KK = B1.1 Kes Kematian',
+                    'B1.2 KKP = B1.2 Kes Kemalangan Parah',
+                    'B2.1 KRP = B2.1 Kes Rawatan Perubatan (Cuti Sakit < 5 Hari)',
+                    'B2.2 KPC = B2.2 Kes Pertolongan Cemas',
+                    'B3.1 KB = B3.1 Kebakaran',
+                    'B3.2 KHB = B3.2 Kerosakan Harta Benda',
+                    'B3.3 KHNM = B3.3 Kejadian Hampir (Near Miss)',
+                    'B3.4 LI = B3.4 Lain-lain insiden'
+                ]},
+                { title: 'SEKSYEN C: REKOD KES BERKAITAN KESIHATAN', items: [
+                    'C1. KPP = C1. Kes Penyakit Pekerjaan',
+                    'C2. KPB = C2. Kes Penyakit Berjangkit'
+                ]},
+                { title: 'SEKSYEN D: PROGRAM KKP', items: [
+                    'D1. JMKKP = D1. Jumlah Mesyuarat KKP',
+                    'D2. JLKKP = D2. Jumlah Latihan KKP',
+                    'D3. JTT = D3. Jumlah Taklimat/Toolbox',
+                    'D4. JPKKP = D4. Jumlah Pemeriksaan KKP',
+                    'D5. PUAUC = D5. Pelaporan UAUC',
+                    'D6. LAKKP = D6. Lain-lain Aktiviti KKP'
+                ]}
+            ];
+            
+            sections.forEach(section => {
+                csvRows.push('');
+                csvRows.push(section.title);
+                section.items.forEach(item => {
+                    csvRows.push(item);
+                });
+            });
+            
+            return csvRows;
+        }
+
+        // Enhanced debounce function for search
+        function debounce(func, wait, immediate) {
+            let timeout;
+            return function executedFunction(...args) {
+                const later = () => {
+                    timeout = null;
+                    if (!immediate) func(...args);
+                };
+                const callNow = immediate && !timeout;
+                clearTimeout(timeout);
+                timeout = setTimeout(later, wait);
+                if (callNow) func(...args);
+            };
+        }
+
+        function loadReportsForDivision(division) {
+            tableBody.innerHTML = '<tr><td colspan="9" class="loading">Memuatkan laporan bahagian anda...</td></tr>';
+            db.collection('kkpReports')
+                .where('division', '==', division)
+                .orderBy('createdAt', 'desc')
+                .get()
+                .then((querySnapshot) => {
+                    allReports = [];
+                    querySnapshot.forEach((doc) => {
+                        const report = doc.data();
+                        report.id = doc.id;
+                        allReports.push(report);
+                    });
+                    totalReports = allReports.length;
+                    loadDivisionFilter();
+                    applyFilters();
+                    updateSearchResultsInfo();
+                    openViewIfRequested();
+                })
+                .catch((error) => {
+                    console.error('Error loading reports:', error);
+                    tableBody.innerHTML = '<tr><td colspan="9" class="error-message">Ralat memuatkan laporan. Sila cuba lagi.</td></tr>';
+                });
+        }
+
+        function openViewIfRequested() {
+            const params = new URLSearchParams(window.location.search);
+            const viewId = params.get('view');
+            if (!viewId) return;
+            const report = allReports.find(r => r.id === viewId);
+            if (report) {
+                setTimeout(() => viewPdf(viewId), 200);
+            }
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            requireAuth(() => {
+                getUserRoleAndDivision((err, info) => {
+                    if (err || !info) {
+                        window.location.href = 'login.html';
+                        return;
+                    }
+                    if (info.role === 'admin') {
+                        loadAllReports();
+                    } else if (info.division) {
+                        loadReportsForDivision(info.division);
+                    } else {
+                        allReports = [];
+                        totalReports = 0;
+                        tableBody.innerHTML = '<tr><td colspan="9">Tiada bahagian ditetapkan. Sila hubungi pentadbir.</td></tr>';
+                        loadDivisionFilter();
+                        applyFilters();
+                        updateSearchResultsInfo();
+                    }
+                    setupEventListeners();
+                    setupDefaultDates();
+                    setupEnhancedExportListeners();
+                });
+            });
+        });
+
+        // Set default date range to January 1 - December 31 of current year
+        function setupDefaultDates() {
+            const currentYear = new Date().getFullYear();
+            
+            // Set directly in YYYY-MM-DD format
+            startDateFilter.value = `${currentYear}-01-01`;
+            endDateFilter.value = `${currentYear}-12-31`;
+        }
+
+        // Load all reports at once for client-side filtering
+        function loadAllReports() {
+            tableBody.innerHTML = '<tr><td colspan="9" class="loading">Loading reports...</td></tr>';
+            
+            db.collection('kkpReports')
+                .orderBy('createdAt', 'desc')
+                .get()
+                .then((querySnapshot) => {
+                    allReports = [];
+                    querySnapshot.forEach((doc) => {
+                        const report = doc.data();
+                        report.id = doc.id;
+                        allReports.push(report);
+                    });
+                    
+                    totalReports = allReports.length;
+                    loadDivisionFilter();
+                    applyFilters(); // Apply initial filters
+                    updateSearchResultsInfo();
+                    openViewIfRequested();
+                }).catch((error) => {
+                    console.error('Error loading reports: ', error);
+                    tableBody.innerHTML = '<tr><td colspan="9" class="error-message">Error loading reports. Please try again.</td></tr>';
+                });
+        }
+
+        // Load division filter from loaded reports
+        function loadDivisionFilter() {
+            const divisions = new Set();
+            allReports.forEach(report => {
+                const division = report.division;
+                if (division) divisions.add(division);
+            });
+            updateDivisionFilter(divisions);
+        }
+
+        function updateDivisionFilter(divisions) {
+            divisionFilter.innerHTML = '<option value="">All Divisions</option>';
+            const divisionsArray = Array.from(divisions).sort();
+            divisionsArray.forEach(division => {
+                const option = document.createElement('option');
+                option.value = division;
+                option.textContent = division;
+                divisionFilter.appendChild(option);
+            });
+        }
+
+        // Get current filter values
+        function getCurrentFilters() {
+            const searchText = searchInput.value.toLowerCase().trim();
+            return {
+                division: divisionFilter.value || null,
+                quarter: quarterFilter.value || null,
+                startDate: startDateFilter.value || null,
+                endDate: endDateFilter.value || null,
+                search: searchText || null
+            };
+        }
+
+        // Apply filters to all reports - ENHANCED VERSION
+        function applyFilters() {
+            const filters = getCurrentFilters();
+            
+            console.log('Applying filters:', filters);
+            console.log('Total reports before filtering:', allReports.length);
+            
+            // Show loading state for search
+            if (filters.search && !isSearching) {
+                isSearching = true;
+                searchInput.classList.add('loading');
+            }
+            
+            // Filter the reports based on current filters
+            filteredReports = allReports.filter(report => {
+                // Division filter
+                const matchesDivision = !filters.division || 
+                    (report.division && report.division === filters.division);
+                
+                // Quarter filter
+                const matchesQuarter = !filters.quarter || 
+                    (report.quarter && report.quarter === filters.quarter);
+                
+                // Date range filter - ENHANCED
+                let matchesDateRange = true;
+                if (filters.startDate || filters.endDate) {
+                    const reportDate = report.reportDate;
+                    if (!reportDate) {
+                        matchesDateRange = false;
+                    } else {
+                        const reportDateObj = new Date(reportDate);
+                        reportDateObj.setHours(12, 0, 0, 0); // Normalize time to avoid timezone issues
+                        
+                        if (filters.startDate) {
+                            const startDateObj = new Date(filters.startDate);
+                            startDateObj.setHours(0, 0, 0, 0);
+                            if (reportDateObj < startDateObj) matchesDateRange = false;
+                        }
+                        if (filters.endDate) {
+                            const endDateObj = new Date(filters.endDate);
+                            endDateObj.setHours(23, 59, 59, 999);
+                            if (reportDateObj > endDateObj) matchesDateRange = false;
+                        }
+                    }
+                }
+                
+                // Search filter - ENHANCED real-time search
+                let matchesSearch = true;
+                if (filters.search) {
+                    const searchTerms = filters.search.toLowerCase().split(' ');
+                    matchesSearch = searchTerms.every(term => 
+                        (report.division && report.division.toLowerCase().includes(term)) ||
+                        (report.quarter && report.quarter.toLowerCase().includes(term)) ||
+                        (report.certifierName && report.certifierName.toLowerCase().includes(term)) ||
+                        (report.reportDate && report.reportDate.toLowerCase().includes(term)) ||
+                        (report.id && report.id.toLowerCase().includes(term))
+                    );
+                }
+                
+                return matchesDivision && matchesQuarter && matchesDateRange && matchesSearch;
+            });
+            
+            console.log('Total reports after filtering:', filteredReports.length);
+            
+            // Remove loading state
+            if (isSearching) {
+                isSearching = false;
+                searchInput.classList.remove('loading');
+            }
+            
+            // Apply sorting
+            sortReports();
+            
+            // Reset to first page and display
+            currentPage = 1;
+            displayReports();
+            updateSearchResultsInfo();
+        }
+
+        // Update search results information
+        function updateSearchResultsInfo() {
+            if (filteredReports.length === 0 && allReports.length > 0) {
+                searchResultsInfo.style.display = 'block';
+                resultsCount.textContent = '0';
+                totalCount.textContent = allReports.length;
+                searchQueryInfo.style.display = 'none';
+                dateRangeInfo.style.display = 'none';
+            } else if (filteredReports.length < allReports.length) {
+                searchResultsInfo.style.display = 'block';
+                resultsCount.textContent = filteredReports.length;
+                totalCount.textContent = allReports.length;
+                
+                // Show search query if applicable
+                const filters = getCurrentFilters();
+                if (filters.search) {
+                    searchQueryInfo.style.display = 'inline';
+                    queryText.textContent = filters.search;
+                } else {
+                    searchQueryInfo.style.display = 'none';
+                }
+                
+                // Show date range info if applicable
+                if (filters.startDate || filters.endDate) {
+                    dateRangeInfo.style.display = 'inline';
+                    const start = filters.startDate ? formatDateForDisplay(filters.startDate) : 'Any';
+                    const end = filters.endDate ? formatDateForDisplay(filters.endDate) : 'Any';
+                    dateRangeInfo.textContent = ` from ${start} to ${end}`;
+                } else {
+                    dateRangeInfo.style.display = 'none';
+                }
+            } else {
+                searchResultsInfo.style.display = 'none';
+            }
+        }
+
+        // Format date for display
+        function formatDateForDisplay(dateString) {
+            return new Date(dateString).toLocaleDateString('ms-MY', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric'
+            });
+        }
+
+        // Setup event listeners
+        function setupEventListeners() {
+            logoutBtn.addEventListener('click', handleLogout);
+            closeModal.addEventListener('click', closePdfModal);
+            
+            // Enhanced Sorting with visual feedback
+            document.querySelectorAll('.sortable').forEach(th => {
+                th.addEventListener('click', () => {
+                    const column = th.getAttribute('data-sort');
+                    handleSort(column);
+                });
+            });
+            
+            // Filtering
+            divisionFilter.addEventListener('change', applyFilters);
+            quarterFilter.addEventListener('change', applyFilters);
+            startDateFilter.addEventListener('change', applyFilters);
+            endDateFilter.addEventListener('change', applyFilters);
+            
+            // Quick Actions
+            sortNewestBtn.addEventListener('click', () => {
+                handleSort('createdAt', 'desc');
+                setActiveQuickAction(sortNewestBtn);
+            });
+            
+            sortOldestBtn.addEventListener('click', () => {
+                handleSort('createdAt', 'asc');
+                setActiveQuickAction(sortOldestBtn);
+            });
+            
+            sortDivisionBtn.addEventListener('click', () => {
+                handleSort('division', 'asc');
+                setActiveQuickAction(sortDivisionBtn);
+            });
+            
+            clearFiltersBtn.addEventListener('click', clearAllFilters);
+            
+            // Pagination
+            document.getElementById('entriesSelect').addEventListener('change', function() {
+                entriesPerPage = parseInt(this.value);
+                currentPage = 1;
+                displayReports();
+            });
+            
+            document.getElementById('firstBtn').addEventListener('click', () => goToPage(1));
+            document.getElementById('prevBtn').addEventListener('click', () => goToPage(currentPage - 1));
+            document.getElementById('nextBtn').addEventListener('click', () => goToPage(currentPage + 1));
+            document.getElementById('lastBtn').addEventListener('click', () => {
+                const totalPages = Math.ceil(filteredReports.length / entriesPerPage);
+                goToPage(totalPages);
+            });
+            
+            // Enhanced Search with real-time feedback
+            searchInput.addEventListener('input', debounce(function() {
+                applyFilters();
+            }, 300));
+            
+            // Clear data functionality
+            clearDataBtn.addEventListener('click', showClearConfirmation);
+            confirmClearBtn.addEventListener('click', clearAllData);
+            cancelClearBtn.addEventListener('click', hideClearConfirmation);
+            
+            // Close modals when clicking outside
+            clearDataModal.addEventListener('click', function(e) {
+                if (e.target === clearDataModal) {
+                    hideClearConfirmation();
+                }
+            });
+            
+            pdfModal.addEventListener('click', function(e) {
+                if (e.target === pdfModal) {
+                    closePdfModal();
+                }
+            });
+            
+            const lampiranLb = document.getElementById('lampiranLightbox');
+            if (lampiranLb) {
+                document.getElementById('lampiranLightboxClose').addEventListener('click', closeLampiranLightbox);
+                document.getElementById('lampiranLightboxPrev').addEventListener('click', function() {
+                    if (!window._lampiranList || !window._lampiranList.length) return;
+                    window._lampiranCurrent = (window._lampiranCurrent - 1 + window._lampiranList.length) % window._lampiranList.length;
+                    showLampiranLightboxImage();
+                });
+                document.getElementById('lampiranLightboxNext').addEventListener('click', function() {
+                    if (!window._lampiranList || !window._lampiranList.length) return;
+                    window._lampiranCurrent = (window._lampiranCurrent + 1) % window._lampiranList.length;
+                    showLampiranLightboxImage();
+                });
+                lampiranLb.addEventListener('click', function(e) { if (e.target === lampiranLb) closeLampiranLightbox(); });
+            }
+            
+            // Escape key for modals
+            document.addEventListener('keydown', function(event) {
+                if (event.key === 'Escape') {
+                    if (pdfModal.style.display === 'block') {
+                        closePdfModal();
+                    }
+                    if (clearDataModal.style.display === 'block') {
+                        hideClearConfirmation();
+                    }
+                    if (lampiranLb && lampiranLb.classList.contains('open')) {
+                        closeLampiranLightbox();
+                    }
+                }
+                if (lampiranLb && lampiranLb.classList.contains('open')) {
+                    if (event.key === 'ArrowLeft') document.getElementById('lampiranLightboxPrev').click();
+                    if (event.key === 'ArrowRight') document.getElementById('lampiranLightboxNext').click();
+                }
+            });
+        }
+
+        // Setup enhanced export listeners
+        function setupEnhancedExportListeners() {
+            // Enhanced Export Current Data - Export ALL filtered data, not just current page
+            exportBtn.addEventListener('click', () => {
+                exportToCSV({
+                    format: 'detailed',
+                    includeMetadata: false,
+                    dataSource: 'filtered'  // Changed from 'current' to 'filtered'
+                });
+            });
+            
+            // Enhanced Export All Data - Compressed by Quarters
+            exportAllBtn.addEventListener('click', exportAllData);
+            
+            // Export option buttons (commented out but kept for future use)
+            if (exportSummaryBtn) {
+                exportSummaryBtn.addEventListener('click', () => {
+                    exportWithOptions({ format: 'summary', dataSource: 'current' });
+                });
+            }
+            
+            if (exportQuarterlyBtn) {
+                exportQuarterlyBtn.addEventListener('click', () => {
+                    exportWithOptions({ format: 'quarterly', dataSource: 'current' });
+                });
+            }
+            
+            if (exportDetailedBtn) {
+                exportDetailedBtn.addEventListener('click', () => {
+                    exportWithOptions({ format: 'detailed', dataSource: 'current' });
+                });
+            }
+            
+            if (exportAllDetailedBtn) {
+                exportAllDetailedBtn.addEventListener('click', () => {
+                    exportWithOptions({ format: 'detailed', dataSource: 'all' });
+                });
+            }
+        }
+
+        // Set active quick action button
+        function setActiveQuickAction(activeBtn) {
+            document.querySelectorAll('.action-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            activeBtn.classList.add('active');
+        }
+
+        // Clear all filters
+        function clearAllFilters() {
+            divisionFilter.value = '';
+            quarterFilter.value = '';
+            startDateFilter.value = '';
+            endDateFilter.value = '';
+            searchInput.value = '';
+            setupDefaultDates(); // Reset to current year range
+            applyFilters();
+            setActiveQuickAction(clearFiltersBtn);
+        }
+
+        function handleLogout() {
+            const auth = getAuth();
+            if (auth) {
+                auth.signOut().finally(() => {
+                    localStorage.removeItem('userEmail');
+                    window.location.href = 'login.html?logout=1';
+                });
+            } else {
+                localStorage.removeItem('userEmail');
+                window.location.href = 'login.html?logout=1';
+            }
+        }
+
+        function closePdfModal() {
+            pdfModal.style.display = 'none';
+            if (pdfViewer._pdfBlobUrl) {
+                URL.revokeObjectURL(pdfViewer._pdfBlobUrl);
+                pdfViewer._pdfBlobUrl = null;
+            }
+            pdfViewer.src = '';
+            var loadingEl = document.getElementById('pdfModalLoading');
+            if (loadingEl) loadingEl.classList.remove('hidden');
+        }
+
+        // Navigation functions
+        function goToPage(page) {
+            if (page < 1) page = 1;
+            
+            const totalPages = Math.ceil(filteredReports.length / entriesPerPage);
+            if (page > totalPages) page = totalPages;
+            
+            if (page === currentPage) return;
+            
+            currentPage = page;
+            displayReports();
+        }
+
+        // Show confirmation modal for clearing data
+        function showClearConfirmation() {
+            if (totalReports === 0) {
+                alert('No data to clear.');
+                return;
+            }
+            clearDataModal.style.display = 'block';
+        }
+
+        // Hide confirmation modal
+        function hideClearConfirmation() {
+            clearDataModal.style.display = 'none';
+        }
+
+        // Clear all data from Firestore
+        function clearAllData() {
+            const originalText = clearDataBtn.textContent;
+            const reportsToClear = totalReports;
+            
+            // Show loading state
+            clearDataBtn.disabled = true;
+            clearDataBtn.textContent = 'Clearing...';
+            hideClearConfirmation();
+            
+            // Get all documents and delete them in batches
+            const batchSize = 500;
+            const deleteBatch = (query) => {
+                query.limit(batchSize).get().then((snapshot) => {
+                    if (snapshot.size === 0) {
+                        // All documents deleted
+                        writeAuditLog('reports_cleared', {
+                            count: reportsToClear,
+                            details: 'Semua laporan dipadam dari halaman data'
+                        });
+                        resetAfterClear();
+                        alert('All data has been cleared successfully.');
+                        return;
+                    }
+                    
+                    // Delete documents in batch
+                    const batch = db.batch();
+                    snapshot.docs.forEach((doc) => {
+                        batch.delete(doc.ref);
+                    });
+                    
+                    return batch.commit().then(() => {
+                        // Recurse on the next batch
+                        return deleteBatch(query);
+                    });
+                });
+            };
+            
+            // Start deletion
+            deleteBatch(db.collection('kkpReports'))
+                .catch((error) => {
+                    console.error('Error clearing data: ', error);
+                    alert('Error clearing data. Please try again.');
+                })
+                .finally(() => {
+                    // Reset button state
+                    clearDataBtn.disabled = false;
+                    clearDataBtn.textContent = originalText;
+                });
+        }
+
+        function resetAfterClear() {
+            // Reset all data
+            allReports = [];
+            filteredReports = [];
+            currentReports = [];
+            currentPage = 1;
+            totalReports = 0;
+            
+            // Update UI
+            displayReports();
+            
+            // Reset division filter
+            divisionFilter.innerHTML = '<option value="">All Divisions</option>';
+            
+            // Reload data
+            loadAllReports();
+        }
+
+        // Enhanced Sorting with visual feedback
+        function handleSort(column, direction = null) {
+            if (direction) {
+                sortColumn = column;
+                sortDirection = direction;
+            } else {
+                if (sortColumn === column) {
+                    sortDirection = sortDirection === 'asc' ? 'desc' : 'asc';
+                } else {
+                    sortColumn = column;
+                    sortDirection = 'asc';
+                }
+            }
+            
+            // Update sort indicators and visual feedback
+            document.querySelectorAll('.sortable').forEach(th => {
+                const indicator = th.querySelector('.sort-indicator');
+                th.classList.remove('sort-asc', 'sort-desc');
+                
+                if (th.getAttribute('data-sort') === sortColumn) {
+                    indicator.textContent = sortDirection === 'asc' ? '↑' : '↓';
+                    th.classList.add(sortDirection === 'asc' ? 'sort-asc' : 'sort-desc');
+                } else {
+                    indicator.textContent = '↕';
+                }
+            });
+            
+            sortReports();
+            displayReports();
+        }
+
+        function sortReports() {
+            if (!filteredReports.length) return;
+            
+            filteredReports.sort((a, b) => {
+                let aValue = a[sortColumn];
+                let bValue = b[sortColumn];
+                
+                // Handle special cases
+                if (sortColumn === 'index') {
+                    return sortDirection === 'asc' ? 1 : -1;
+                }
+                if (sortColumn === 'majorAccidents') {
+                    aValue = calculateMajorAccidents(a);
+                    bValue = calculateMajorAccidents(b);
+                }
+                if (sortColumn === 'minorAccidents') {
+                    aValue = calculateMinorAccidents(a);
+                    bValue = calculateMinorAccidents(b);
+                }
+                if (sortColumn === 'noInjuryAccidents') {
+                    aValue = calculateNoInjuryAccidents(a);
+                    bValue = calculateNoInjuryAccidents(b);
+                }
+                
+                // Handle date sorting
+                if (sortColumn === 'reportDate' || sortColumn === 'createdAt') {
+                    aValue = aValue ? new Date(aValue) : new Date(0);
+                    bValue = bValue ? new Date(bValue) : new Date(0);
+                }
+                
+                // Handle null/undefined values
+                if (aValue === null || aValue === undefined) aValue = '';
+                if (bValue === null || bValue === undefined) bValue = '';
+                
+                if (aValue < bValue) return sortDirection === 'asc' ? -1 : 1;
+                if (aValue > bValue) return sortDirection === 'asc' ? 1 : -1;
+                return 0;
+            });
+        }
+
+        // UPDATED CALCULATION FUNCTIONS TO MATCH FORM.HTML STRUCTURE
+
+        // Calculate Major Accidents (Kematian + Kemalangan Parah)
+        function calculateMajorAccidents(report) {
+            return (
+                parseInt(safeGetValue(report.deathCases, 0)) +
+                parseInt(safeGetValue(report.severeAccidents, 0))
+            );
+        }
+
+        // UPDATED: Calculate Minor Accidents (Kes Rawatan Perubatan + First Aid ONLY)
+        // Penyakit Pekerjaan has been moved to Seksyen C in form.html
+        function calculateMinorAccidents(report) {
+            return (
+                parseInt(safeGetValue(report.medicalCases, 0)) +
+                parseInt(safeGetValue(report.firstAidCases, 0))
+                // REMOVED: Penyakit Pekerjaan (moved to Seksyen C)
+            );
+        }
+
+        // Calculate No Injury Accidents (Kebakaran + Kerosakan Harta + Near Miss + Lain-lain)
+        // Note: commutingAccidents has been removed from form.html
+        function calculateNoInjuryAccidents(report) {
+            return (
+                parseInt(safeGetValue(report.fireCases, 0)) +
+                parseInt(safeGetValue(report.propertyDamage, 0)) +
+                parseInt(safeGetValue(report.nearMiss, 0)) +
+                parseInt(safeGetValue(report.otherIncidents, 0))
+            );
+        }
+
+        // Get accident details for display - UPDATED FOR FORM.HTML STRUCTURE
+        function getMajorAccidentDetails(report) {
+            const details = [];
+            if (report.deathCases && parseInt(report.deathCases) > 0) details.push(`Kematian: ${report.deathCases}`);
+            if (report.severeAccidents && parseInt(report.severeAccidents) > 0) details.push(`Parah: ${report.severeAccidents}`);
+            return details.length > 0 ? details.join(', ') : 'Tiada kes major';
+        }
+
+        // UPDATED: Get Minor Accident Details (without Penyakit Pekerjaan)
+        function getMinorAccidentDetails(report) {
+            const details = [];
+            if (report.medicalCases && parseInt(report.medicalCases) > 0) details.push(`Perubatan: ${report.medicalCases}`);
+            if (report.firstAidCases && parseInt(report.firstAidCases) > 0) details.push(`First Aid: ${report.firstAidCases}`);
+            // REMOVED: Penyakit Pekerjaan (moved to Seksyen C)
+            return details.length > 0 ? details.join(', ') : 'Tiada kes minor';
+        }
+
+        // UPDATED: Get No Injury Accident Details (without commutingAccidents)
+        function getNoInjuryAccidentDetails(report) {
+            const details = [];
+            if (report.fireCases && parseInt(report.fireCases) > 0) details.push(`Kebakaran: ${report.fireCases}`);
+            if (report.propertyDamage && parseInt(report.propertyDamage) > 0) details.push(`Kerosakan: ${report.propertyDamage}`);
+            // REMOVED: commutingAccidents (removed from form.html)
+            if (report.nearMiss && parseInt(report.nearMiss) > 0) details.push(`Near Miss: ${report.nearMiss}`);
+            if (report.otherIncidents && parseInt(report.otherIncidents) > 0) details.push(`Lain-lain: ${report.otherIncidents}`);
+            return details.length > 0 ? details.join(', ') : 'Tiada kes tiada kecederaan';
+        }
+
+        // Display reports in the table - UPDATED (KEMATIAN COLUMN REMOVED)
+        function displayReports() {
+            if (!filteredReports.length) {
+                tableBody.innerHTML = '<tr><td colspan="9">No reports found.</td></tr>';
+                updatePagination();
+                return;
+            }
+            
+            // Calculate pagination
+            const startIndex = (currentPage - 1) * entriesPerPage;
+            const endIndex = startIndex + entriesPerPage;
+            currentReports = filteredReports.slice(startIndex, endIndex);
+            
+            tableBody.innerHTML = '';
+            
+            currentReports.forEach((report, index) => {
+                const globalIndex = startIndex + index + 1;
+                const majorAccidents = calculateMajorAccidents(report);
+                const minorAccidents = calculateMinorAccidents(report);
+                const noInjuryAccidents = calculateNoInjuryAccidents(report);
+                
+                const majorDetails = getMajorAccidentDetails(report);
+                const minorDetails = getMinorAccidentDetails(report);
+                const noInjuryDetails = getNoInjuryAccidentDetails(report);
+                
+                const reportDate = report.reportDate ? new Date(report.reportDate).toLocaleDateString('ms-MY') : 'N/A';
+                const hasImages = (report.imagesForPdf && report.imagesForPdf.length) || (report.images && report.images.length);
+                const lampiranBtnHtml = hasImages
+                    ? `<button class="lampiran-btn" data-id="${report.id}" aria-label="Lihat Lampiran">Lihat Lampiran</button>`
+                    : '';
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${globalIndex}</td>
+                    <td>${safeGetValue(report.division)}</td>
+                    <td>${safeGetValue(report.quarter)}</td>
+                    <!-- Kematian column removed -->
+                    <!-- UPDATED COLUMNS WITH NESTED INFORMATION -->
+                    <td>
+                        ${majorAccidents}
+                        <div class="accident-details">${majorDetails}</div>
+                    </td>
+                    <td>
+                        ${minorAccidents}
+                        <div class="accident-details">${minorDetails}</div>
+                    </td>
+                    <td>
+                        ${noInjuryAccidents}
+                        <div class="accident-details">${noInjuryDetails}</div>
+                    </td>
+                    <!-- END UPDATED COLUMNS -->
+                    <td>${safeGetValue(report.certifierName)}</td>
+                    <td>${reportDate}</td>
+                    <td>
+                        <div class="button-container">
+                            <button class="view-btn" data-id="${report.id}" aria-label="View PDF for ${report.division} ${report.quarter} report">View PDF</button>
+                            <button class="download-btn" data-id="${report.id}" aria-label="Download ${report.division} ${report.quarter} report">Download</button>
+                            ${lampiranBtnHtml}
+                        </div>
+                    </td>
+                `;
+                tableBody.appendChild(row);
+            });
+            
+            // Add event listeners to action buttons
+            document.querySelectorAll('.view-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const reportId = e.target.getAttribute('data-id');
+                    viewPdf(reportId);
+                });
+            });
+            
+            document.querySelectorAll('.download-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const reportId = e.target.getAttribute('data-id');
+                    downloadReport(reportId);
+                });
+            });
+            
+            document.querySelectorAll('.lampiran-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const reportId = e.target.getAttribute('data-id');
+                    openLampiranLightbox(reportId);
+                });
+            });
+            
+            updatePagination();
+        }
+
+        function openLampiranLightbox(reportId) {
+            const report = allReports.find(r => r.id === reportId);
+            if (!report) return;
+            let list = [];
+            if (report.imagesForPdf && report.imagesForPdf.length) {
+                list = report.imagesForPdf.map(item => ({ src: item.dataUrl || item.url, caption: item.caption || '' }));
+            } else if (report.images && report.images.length) {
+                list = report.images.map(item => ({ src: item.url || '', caption: item.caption || '' }));
+            }
+            if (list.length === 0) return;
+            window._lampiranList = list;
+            window._lampiranCurrent = 0;
+            showLampiranLightboxImage();
+            const lb = document.getElementById('lampiranLightbox');
+            lb.classList.add('open');
+            lb.setAttribute('aria-hidden', 'false');
+        }
+
+        function showLampiranLightboxImage() {
+            const list = window._lampiranList;
+            const cur = window._lampiranCurrent;
+            if (!list || !list.length) return;
+            const item = list[cur];
+            document.getElementById('lampiranLightboxImg').src = item.src;
+            document.getElementById('lampiranLightboxCaption').textContent = item.caption || '';
+            document.getElementById('lampiranLightboxCounter').textContent = (cur + 1) + ' / ' + list.length;
+        }
+
+        function closeLampiranLightbox() {
+            const lb = document.getElementById('lampiranLightbox');
+            lb.classList.remove('open');
+            lb.setAttribute('aria-hidden', 'true');
+        }
+
+        function updatePagination() {
+            const totalPages = Math.ceil(filteredReports.length / entriesPerPage);
+            const pageInfo = document.getElementById('pageInfo');
+            const firstBtn = document.getElementById('firstBtn');
+            const prevBtn = document.getElementById('prevBtn');
+            const nextBtn = document.getElementById('nextBtn');
+            const lastBtn = document.getElementById('lastBtn');
+            
+            pageInfo.textContent = `Page ${currentPage} of ${totalPages}`;
+            
+            firstBtn.disabled = currentPage === 1;
+            prevBtn.disabled = currentPage === 1;
+            nextBtn.disabled = currentPage === totalPages || totalPages === 0;
+            lastBtn.disabled = currentPage === totalPages || totalPages === 0;
+        }
+
+        // View PDF in modal (regenerated on demand)
+        function viewPdf(reportId) {
+            const report = allReports.find(r => r.id === reportId);
+            if (!report) {
+                alert('Report data not found');
+                return;
+            }
+            const loadingEl = document.getElementById('pdfModalLoading');
+            pdfTitle.textContent = `KKP Report - ${safeGetValue(report.division)} - ${safeGetValue(report.quarter)}`;
+            pdfViewer.src = '';
+            if (pdfViewer._pdfBlobUrl) {
+                URL.revokeObjectURL(pdfViewer._pdfBlobUrl);
+                pdfViewer._pdfBlobUrl = null;
+            }
+            if (loadingEl) loadingEl.classList.remove('hidden');
+            pdfModal.style.display = 'block';
+            try {
+                const doc = generatePdfFromReport(report);
+                // Chrome/Edge block data: PDF URLs in iframes; blob: URLs work (including file:// pages).
+                const pdfBlob = doc.output('blob');
+                const blobUrl = URL.createObjectURL(pdfBlob);
+                pdfViewer._pdfBlobUrl = blobUrl;
+                pdfViewer.src = blobUrl;
+            } catch (err) {
+                console.error('View PDF error:', err);
+                alert('Gagal menjana PDF. Sila cuba lagi.');
+            }
+            if (loadingEl) loadingEl.classList.add('hidden');
+        }
+
+        // Download regenerated PDF matching current saved data
+        function downloadReport(reportId) {
+            const report = allReports.find(r => r.id === reportId);
+            if (!report) {
+                alert('Report data not found');
+                return;
+            }
+
+            const doc = generatePdfFromReport(report);
+            const fileName = `KKP_Report_${safeGetValue(report.division, 'Unknown')}_${safeGetValue(report.quarter, 'Unknown')}.pdf`;
+            doc.save(fileName);
+        }
+
+        // =========================================================================
+        // ENHANCED CSV EXPORT FUNCTIONALITY WITH ABBREVIATIONS
+        // =========================================================================
+
+        // Enhanced export function with options
+        function exportWithOptions(options = {}) {
+            const mergedOptions = { ...exportOptions, ...options };
+            
+            if (mergedOptions.format === 'summary') {
+                exportSummaryReport(mergedOptions);
+            } else if (mergedOptions.format === 'quarterly') {
+                exportQuarterlySummary(mergedOptions);
+            } else {
+                const reports = mergedOptions.dataSource === 'all' ? allReports : currentReports;
+                exportDetailedReport(reports, mergedOptions);
+            }
+        }
+
+        // Enhanced Export Current Data with ALL filtered data
+        function exportToCSV(options = {}) {
+            const defaultOptions = {
+                format: 'detailed',
+                includeMetadata: false,
+                groupBy: 'none',
+                dataSource: 'filtered' // 'filtered', 'current', or 'all'
+            };
+            
+            const mergedOptions = { ...defaultOptions, ...options };
+            
+            // Determine which data to export based on dataSource
+            let reportsToExport;
+            switch (mergedOptions.dataSource) {
+                case 'all':
+                    reportsToExport = allReports;
+                    break;
+                case 'filtered':
+                    reportsToExport = filteredReports;
+                    break;
+                case 'current':
+                    reportsToExport = currentReports;
+                    break;
+                default:
+                    reportsToExport = filteredReports; // Default to filtered data
+            }
+            
+            if (reportsToExport.length === 0) {
+                alert('Tiada data untuk dieksport. Sila semak penapisan anda.');
+                return;
+            }
+
+            // Show loading state for export button
+            const originalText = exportBtn.textContent;
+            exportBtn.disabled = true;
+            exportBtn.innerHTML = '<span class="export-loading"></span>Menyediakan Eksport...';
+
+            try {
+                // Validate data before export
+                validateExportData(reportsToExport);
+                
+                // Show export summary in console
+                showExportSummary(reportsToExport, mergedOptions);
+                
+                // Perform the export
+                exportDetailedReport(reportsToExport, mergedOptions);
+                
+            } catch (error) {
+                console.error('Export validation failed:', error);
+                alert(`Eksport gagal: ${error.message}`);
+            } finally {
+                // Reset button state
+                setTimeout(() => {
+                    exportBtn.disabled = false;
+                    exportBtn.textContent = originalText;
+                }, 1000);
+            }
+        }
+
+        // Enhanced Export All Data - Compressed by Quarters
+        function exportAllData() {
+            const originalText = exportAllBtn.textContent;
+            
+            // Show loading state
+            exportAllBtn.disabled = true;
+            exportAllBtn.innerHTML = '<span class="export-loading"></span>Exporting All Data...';
+            
+            // Fetch ALL data from Firestore
+            db.collection('kkpReports')
+                .orderBy('createdAt', 'desc')
+                .get()
+                .then((querySnapshot) => {
+                    if (querySnapshot.empty) {
+                        alert('No data found in the database to export.');
+                        resetExportAllButton(originalText);
+                        return;
+                    }
+                    
+                    const allReportsData = [];
+                    querySnapshot.forEach((doc) => {
+                        const report = doc.data();
+                        report.id = doc.id;
+                        allReportsData.push(report);
+                    });
+                    
+                    // Export with quarter compression
+                    exportAllDataByQuarters(allReportsData);
+                    resetExportAllButton(originalText);
+                    
+                })
+                .catch((error) => {
+                    console.error('Error fetching all data for export: ', error);
+                    alert('Error exporting all data. Please try again.');
+                    resetExportAllButton(originalText);
+                });
+        }
+
+        // New function to export all data compressed by quarters - WITH ABBREVIATIONS
+        function exportAllDataByQuarters(reports) {
+            const csvRows = [];
+            const timestamp = new Date();
+            
+            // Title and headers with enhanced information
+            csvRows.push(',,,,LAPORAN KKP - SEMUA DATA MENGIKUT SUKU (STRUKTUR BORANG TERKINI)');
+            csvRows.push(',,,,');
+            csvRows.push(`",,,,Dijana pada: ${timestamp.toLocaleString('ms-MY')}"`);
+            csvRows.push(`",,,,Jumlah Rekod Asal: ${reports.length}"`);
+            csvRows.push(',,,,');
+            
+            // Group reports by quarter
+            const quartersData = {
+                'Suku 1': { reports: [], total: 0 },
+                'Suku 2': { reports: [], total: 0 },
+                'Suku 3': { reports: [], total: 0 },
+                'Suku 4': { reports: [], total: 0 }
+            };
+            
+            // Organize reports by quarter
+            reports.forEach(report => {
+                const quarter = report.quarter || 'Unknown';
+                if (quartersData[quarter]) {
+                    quartersData[quarter].reports.push(report);
+                    quartersData[quarter].total++;
+                }
+            });
+            
+            // Headers for quarter-compressed data - WITH ABBREVIATIONS
+            const headers = [
+                'Suku',
+                'Jumlah Laporan',
+                // Section A: STATISTIK - WITH ABBREVIATIONS
+                'A1. JBP',
+                'A2. JCSPDK',
+                'A3. JCSPPBP',
+                // Section B: REKOD KES KEMALANGAN - WITH ABBREVIATIONS
+                'B1.1 KK',
+                'B1.2 KKP',
+                'B2.1 KRP',
+                'B2.2 KPC',
+                // B2.3 Penyakit Pekerjaan REMOVED (moved to Section C)
+                'B3.1 KB',
+                'B3.2 KHB',
+                'B3.3 KHNM',
+                'B3.4 LI',
+                // Section C: REKOD KES BERKAITAN KESIHATAN - WITH ABBREVIATIONS
+                'C1. KPP',  // MOVED FROM SECTION B
+                'C2. KPB',
+                // Section D: PROGRAM KKP - WITH ABBREVIATIONS
+                'D1. JMKKP',
+                'D2. JLKKP',
+                'D3. JTT',
+                'D4. JPKKP',
+                'D5. PUAUC',
+                'D6. LAKKP',
+            ];
+            
+            csvRows.push(headers.join(','));
+            
+            // Process each quarter
+            Object.entries(quartersData).forEach(([quarter, data]) => {
+                if (data.reports.length > 0) {
+                    const quarterTotals = calculateQuarterTotals(data.reports);
+                    const row = [
+                        escapeCsvValue(quarter),
+                        data.total,
+                        // Section A - WITH ABBREVIATIONS
+                        quarterTotals.totalWorkers,
+                        quarterTotals.sickLeave,
+                        quarterTotals.sickLeaveOccInfectious,
+                        // Section B - WITH ABBREVIATIONS
+                        quarterTotals.deathCases,
+                        quarterTotals.severeAccidents,
+                        quarterTotals.medicalCases,
+                        quarterTotals.firstAidCases,
+                        // Penyakit Pekerjaan removed from here
+                        quarterTotals.fireCases,
+                        quarterTotals.propertyDamage,
+                        quarterTotals.nearMiss,
+                        quarterTotals.otherIncidents,
+                        // Section C - WITH ABBREVIATIONS
+                        quarterTotals.occupationalDisease,  // MOVED FROM SECTION B
+                        quarterTotals.infectiousDisease,
+                        // Section D - WITH ABBREVIATIONS
+                        quarterTotals.meetings,
+                        quarterTotals.trainings,
+                        quarterTotals.briefings,
+                        quarterTotals.inspections,
+                        quarterTotals.uauc,
+                        quarterTotals.otherActivities
+                    ];
+                    
+                    csvRows.push(row.join(','));
+                }
+            });
+            
+            // Add enhanced summary statistics for all quarters combined
+            addEnhancedSummaryForAllQuarters(csvRows, reports);
+            
+            // Add LEGEND after the data table
+            addLegendToCsv(csvRows);
+            
+            const filename = `Laporan_KKP_SemuaData_MengikutSuku_${new Date().toISOString().split('T')[0]}`;
+            createAndDownloadCsv(csvRows, filename);
+        }
+
+        // Calculate totals for a set of reports in a quarter - UPDATED TO MATCH FORM.HTML STRUCTURE
+        function calculateQuarterTotals(reports) {
+            const totals = {
+                // Section A
+                totalWorkers: 0,
+                totalWorkersYTD: 0,
+                sickLeave: 0,
+                sickLeaveYTD: 0,
+                sickLeaveOccInfectious: 0,
+                sickLeaveOccInfectiousYTD: 0,
+                // Section B - UPDATED STRUCTURE
+                deathCases: 0,
+                deathCasesYTD: 0,
+                severeAccidents: 0,
+                severeAccidentsYTD: 0,
+                medicalCases: 0,
+                medicalCasesYTD: 0,
+                firstAidCases: 0,
+                firstAidCasesYTD: 0,
+                // occupationalDisease moved to Section C
+                fireCases: 0,
+                fireCasesYTD: 0,
+                propertyDamage: 0,
+                propertyDamageYTD: 0,
+                nearMiss: 0,
+                nearMissYTD: 0,
+                otherIncidents: 0,
+                otherIncidentsYTD: 0,
+                // Section C - UPDATED STRUCTURE
+                occupationalDisease: 0,  // MOVED FROM SECTION B
+                occupationalDiseaseYTD: 0,
+                infectiousDisease: 0,
+                infectiousDiseaseYTD: 0,
+                // Section D
+                meetings: 0,
+                meetingsYTD: 0,
+                trainings: 0,
+                trainingsYTD: 0,
+                briefings: 0,
+                briefingsYTD: 0,
+                inspections: 0,
+                inspectionsYTD: 0,
+                uauc: 0,
+                uaucYTD: 0,
+                otherActivities: 0,
+                otherActivitiesYTD: 0
+            };
+            
+            reports.forEach(report => {
+                // Section A
+                totals.totalWorkers += parseInt(safeGetValue(report.totalWorkers, '0'));
+                totals.totalWorkersYTD += parseInt(safeGetValue(report.totalWorkersYTD, '0'));
+                totals.sickLeave += parseInt(safeGetValue(report.sickLeave, '0'));
+                totals.sickLeaveYTD += parseInt(safeGetValue(report.sickLeaveYTD, '0'));
+                totals.sickLeaveOccInfectious += parseInt(safeGetValue(report.sickLeaveOccInfectious, '0'));
+                totals.sickLeaveOccInfectiousYTD += parseInt(safeGetValue(report.sickLeaveOccInfectiousYTD, '0'));
+                
+                // Section B - UPDATED STRUCTURE
+                totals.deathCases += parseInt(safeGetValue(report.deathCases, '0'));
+                totals.deathCasesYTD += parseInt(safeGetValue(report.deathCasesYTD, '0'));
+                totals.severeAccidents += parseInt(safeGetValue(report.severeAccidents, '0'));
+                totals.severeAccidentsYTD += parseInt(safeGetValue(report.severeAccidentsYTD, '0'));
+                totals.medicalCases += parseInt(safeGetValue(report.medicalCases, '0'));
+                totals.medicalCasesYTD += parseInt(safeGetValue(report.medicalCasesYTD, '0'));
+                totals.firstAidCases += parseInt(safeGetValue(report.firstAidCases, '0'));
+                totals.firstAidCasesYTD += parseInt(safeGetValue(report.firstAidCasesYTD, '0'));
+                // occupationalDisease moved to Section C
+                totals.fireCases += parseInt(safeGetValue(report.fireCases, '0'));
+                totals.fireCasesYTD += parseInt(safeGetValue(report.fireCasesYTD, '0'));
+                totals.propertyDamage += parseInt(safeGetValue(report.propertyDamage, '0'));
+                totals.propertyDamageYTD += parseInt(safeGetValue(report.propertyDamageYTD, '0'));
+                totals.nearMiss += parseInt(safeGetValue(report.nearMiss, '0'));
+                totals.nearMissYTD += parseInt(safeGetValue(report.nearMissYTD, '0'));
+                totals.otherIncidents += parseInt(safeGetValue(report.otherIncidents, '0'));
+                totals.otherIncidentsYTD += parseInt(safeGetValue(report.otherIncidentsYTD, '0'));
+                
+                // Section C - UPDATED STRUCTURE
+                totals.occupationalDisease += parseInt(safeGetValue(report.occupationalDisease, '0'));
+                totals.occupationalDiseaseYTD += parseInt(safeGetValue(report.occupationalDiseaseYTD, '0'));
+                totals.infectiousDisease += parseInt(safeGetValue(report.infectiousDisease, '0'));
+                totals.infectiousDiseaseYTD += parseInt(safeGetValue(report.infectiousDiseaseYTD, '0'));
+                
+                // Section D
+                totals.meetings += parseInt(safeGetValue(report.meetings, '0'));
+                totals.meetingsYTD += parseInt(safeGetValue(report.meetingsYTD, '0'));
+                totals.trainings += parseInt(safeGetValue(report.trainings, '0'));
+                totals.trainingsYTD += parseInt(safeGetValue(report.trainingsYTD, '0'));
+                totals.briefings += parseInt(safeGetValue(report.briefings, '0'));
+                totals.briefingsYTD += parseInt(safeGetValue(report.briefingsYTD, '0'));
+                totals.inspections += parseInt(safeGetValue(report.inspections, '0'));
+                totals.inspectionsYTD += parseInt(safeGetValue(report.inspectionsYTD, '0'));
+                totals.uauc += parseInt(safeGetValue(report.uauc, '0'));
+                totals.uaucYTD += parseInt(safeGetValue(report.uaucYTD, '0'));
+                totals.otherActivities += parseInt(safeGetValue(report.otherActivities, '0'));
+                totals.otherActivitiesYTD += parseInt(safeGetValue(report.otherActivitiesYTD, '0'));
+            });
+            
+            return totals;
+        }
+
+        // Enhanced summary for all quarters combined - WITH ABBREVIATIONS
+        function addEnhancedSummaryForAllQuarters(csvRows, reports) {
+            if (reports.length === 0) return;
+            
+            csvRows.push('');
+            csvRows.push('STATISTIK TERPERINCI - SEMUA SUKU (STRUKTUR TERKINI):');
+            csvRows.push('');
+            
+            const summaries = {
+                'Jumlah Laporan': reports.length,
+                'Jumlah Cuti Sakit Pekerja Disebabkan Kemalangan': sumField(reports, 'sickLeave'),
+                'Jumlah cuti sakit pekerja akibat penyakit berjangkit pekerjaan': sumField(reports, 'sickLeaveOccInfectious'),
+                'Jumlah Kes Kematian': sumField(reports, 'deathCases'),
+                'Jumlah Kes Kemalangan Parah': sumField(reports, 'severeAccidents'),
+                'Jumlah Kes Rawatan Perubatan (Cuti Sakit < 5 Hari)': sumField(reports, 'medicalCases'),
+                'Jumlah Kes Pertolongan Cemas': sumField(reports, 'firstAidCases'),
+                'Jumlah Penyakit Pekerjaan (Seksyen C)': sumField(reports, 'occupationalDisease'),  // MOVED TO SECTION C
+                'Jumlah Kebakaran': sumField(reports, 'fireCases'),
+                'Jumlah Kerosakan Harta Benda': sumField(reports, 'propertyDamage'),
+                'Jumlah Kejadian Hampir (Near Miss)': sumField(reports, 'nearMiss'),
+                'Jumlah Lain-lain insiden': sumField(reports, 'otherIncidents'),
+                'Jumlah Penyakit Berjangkit': sumField(reports, 'infectiousDisease'),
+                'Jumlah Mesyuarat KKP': sumField(reports, 'meetings'),
+                'Jumlah Latihan KKP': sumField(reports, 'trainings'),
+                'Jumlah Taklimat/Toolbox': sumField(reports, 'briefings'),
+                'Jumlah Pemeriksaan KKP (Pemeriksaan Dalaman & Luaran)': sumField(reports, 'inspections'),
+                'Jumlah Pelaporan Unsafe Act Unsafe Condition (UAUC)': sumField(reports, 'uauc'),
+                'Jumlah Lain-lain (Contohnya, Kempen atau Promosi Berkaitan KKP)': sumField(reports, 'otherActivities')
+            };
+            
+            Object.entries(summaries).forEach(([label, value]) => {
+                csvRows.push(`"${label}","${value}",,,`);
+            });
+            
+            // Add quarter distribution
+            csvRows.push('');
+            csvRows.push('TABURAN MENGIKUT SUKU:');
+            
+            const quarterDistribution = {
+                'Suku 1': 0,
+                'Suku 2': 0,
+                'Suku 3': 0,
+                'Suku 4': 0,
+                'Unknown': 0
+            };
+            
+            reports.forEach(report => {
+                const quarter = report.quarter || 'Unknown';
+                quarterDistribution[quarter] = (quarterDistribution[quarter] || 0) + 1;
+            });
+            
+            Object.entries(quarterDistribution).forEach(([quarter, count]) => {
+                if (count > 0) {
+                    const percentage = ((count / reports.length) * 100).toFixed(1);
+                    csvRows.push(`"${quarter}","${count} laporan (${percentage}%)",,,`);
+                }
+            });
+        }
+
+        // Show export summary before download
+        function showExportSummary(reports, options) {
+            const totalRecords = reports.length;
+            const totalMajor = reports.reduce((sum, report) => sum + calculateMajorAccidents(report), 0);
+            const totalMinor = reports.reduce((sum, report) => sum + calculateMinorAccidents(report), 0);
+            const totalNoInjury = reports.reduce((sum, report) => sum + calculateNoInjuryAccidents(report), 0);
+            
+            const dataSourceText = options.dataSource === 'all' ? 'Semua Data' : 
+                                  options.dataSource === 'filtered' ? 'Data Terfilter' : 'Data Halaman Semasa';
+            
+            console.log(`
+🎯 Eksport Siap!
+
+Butiran Eksport:
+- Sumber Data: ${dataSourceText}
+- Jumlah Rekod: ${totalRecords}
+- Format: ${options.format}
+- Struktur: Mengikut form.html terkini (Penyakit Pekerjaan di Seksyen C)
+- Kematian: Dimasukkan dalam Kes Kemalangan Major
+- Header: Menggunakan singkatan A1-D6 dengan LEGENDA
+
+Fail CSV akan dimuat turun secara automatik.
+            `);
+        }
+
+        // 1. Detailed Report Export (Enhanced) - WITH ABBREVIATIONS
+        function exportDetailedReport(reports, options = {}) {
+            const csvRows = [];
+            const timestamp = new Date();
+            const filters = getCurrentFilters();
+            
+            // Title and headers with enhanced information
+            csvRows.push(',,,,LAPORAN KKP - DATA TERPERINCI (STRUKTUR BORANG TERKINI)');
+            csvRows.push(',,,,');
+            csvRows.push(`",,,,Dijana pada: ${timestamp.toLocaleString('ms-MY')}"`);
+            csvRows.push(`",,,,Jumlah Rekod: ${reports.length}"`);
+            
+            // Add filter information if any filters are active
+            const activeFilters = getActiveFilterInfo(filters);
+            if (activeFilters) {
+                csvRows.push(`",,,,Filter: ${activeFilters}"`);
+            }
+            csvRows.push(',,,,');
+            
+            // Enhanced headers WITH ABBREVIATIONS (A1 to D6 only)
+            const headers = [
+                'No',
+                'Bahagian/Unit',
+                'Suku', 
+                'Tarikh Laporan',
+                'Pegawai Mengaku',
+                // Section A: STATISTIK - WITH ABBREVIATIONS
+                'A1. JBP',
+                'A2. JCSPDK',
+                'A3. JCSPPBP',
+                // Section B: REKOD KES KEMALANGAN - WITH ABBREVIATIONS
+                'B1.1 KK',
+                'B1.2 KKP',
+                'B2.1 KRP',
+                'B2.2 KPC',
+                // B2.3 Penyakit Pekerjaan REMOVED (moved to Section C)
+                'B3.1 KB',
+                'B3.2 KHB',
+                'B3.3 KHNM',
+                'B3.4 LI',
+                // Section C: REKOD KES BERKAITAN KESIHATAN - WITH ABBREVIATIONS
+                'C1. KPP',  // MOVED FROM SECTION B
+                'C2. KPB',
+                // Section D: PROGRAM KKP - WITH ABBREVIATIONS
+                'D1. JMKKP',
+                'D2. JLKKP',
+                'D3. JTT',
+                'D4. JPKKP',
+                'D5. PUAUC',
+                'D6. LAKKP'
+            ];
+            
+            csvRows.push(headers.join(','));
+            
+            // Add data rows with validation
+            let validReportsCount = 0;
+            reports.forEach((report, index) => {
+                if (!isValidReport(report)) {
+                    console.warn('Skipping invalid report:', report.id);
+                    return;
+                }
+                validReportsCount++;
+                
+                const displayIndex = options.dataSource === 'all' ? index + 1 : getGlobalIndex(index);
+                
+                const row = [
+                    displayIndex,
+                    escapeCsvValue(report.division),
+                    escapeCsvValue(report.quarter),
+                    escapeCsvValue(formatDateForExport(report.reportDate)),
+                    escapeCsvValue(report.certifierName),
+                    // Section A: WITH ABBREVIATIONS
+                    safeGetValue(report.totalWorkers, '0'),
+                    safeGetValue(report.sickLeave, '0'),
+                    safeGetValue(report.sickLeaveOccInfectious, '0'),
+                    // Section B: WITH ABBREVIATIONS
+                    safeGetValue(report.deathCases, '0'),
+                    safeGetValue(report.severeAccidents, '0'),
+                    safeGetValue(report.medicalCases, '0'),
+                    safeGetValue(report.firstAidCases, '0'),
+                    // Penyakit Pekerjaan removed from here
+                    safeGetValue(report.fireCases, '0'),
+                    safeGetValue(report.propertyDamage, '0'),
+                    safeGetValue(report.nearMiss, '0'),
+                    safeGetValue(report.otherIncidents, '0'),
+                    // Section C: WITH ABBREVIATIONS
+                    safeGetValue(report.occupationalDisease, '0'),  // MOVED FROM SECTION B
+                    safeGetValue(report.infectiousDisease, '0'),
+                    // Section D: WITH ABBREVIATIONS
+                    safeGetValue(report.meetings, '0'),
+                    safeGetValue(report.trainings, '0'),
+                    safeGetValue(report.briefings, '0'),
+                    safeGetValue(report.inspections, '0'),
+                    safeGetValue(report.uauc, '0'),
+                    safeGetValue(report.otherActivities, '0')
+                ];
+                
+                csvRows.push(row.join(','));
+            });
+            
+            // Add enhanced summary statistics - WITH ABBREVIATIONS
+            addEnhancedSummary(csvRows, reports);
+            
+            // Add LEGEND after the data table
+            addLegendToCsv(csvRows);
+            
+            const filename = generateExportFilename('Laporan_KKP_Data_Terperinci_Borang_Terkini', filters, options);
+            createAndDownloadCsv(csvRows, filename);
+        }
+
+        // 2. Summary Report Export - WITH ABBREVIATIONS
+        function exportSummaryReport(options = {}) {
+            const reports = options.dataSource === 'all' ? allReports : currentReports;
+            const csvRows = [];
+            const timestamp = new Date();
+            const filters = getCurrentFilters();
+            
+            csvRows.push(',,,,RINGKASAN LAPORAN KKP (STRUKTUR TERKINI)');
+            csvRows.push(',,,,');
+            csvRows.push(`",,,,Dijana pada: ${timestamp.toLocaleString('ms-MY')}"`);
+            csvRows.push(`",,,,Jumlah Rekod: ${reports.length}"`);
+            
+            const activeFilters = getActiveFilterInfo(filters);
+            if (activeFilters) {
+                csvRows.push(`",,,,Filter: ${activeFilters}"`);
+            }
+            csvRows.push(',,,,');
+            
+            // Summary headers - WITH ABBREVIATIONS
+            const headers = [
+                'Bahagian/Unit',
+                'Suku',
+                'Tarikh Laporan',
+                'Kes Kemalangan Major (Kematian + Parah)',
+                'Kes Kemalangan Minor (Perubatan + First Aid)',  // UPDATED
+                'Kes Kemalangan Tiada Kecederaan',
+                'Pegawai Mengaku'
+            ];
+            
+            csvRows.push(headers.join(','));
+            
+            // Summary data
+            reports.forEach((report) => {
+                if (!isValidReport(report)) return;
+                
+                const row = [
+                    escapeCsvValue(report.division),
+                    escapeCsvValue(report.quarter),
+                    escapeCsvValue(formatDateForExport(report.reportDate)),
+                    calculateMajorAccidents(report),  // Includes death cases
+                    calculateMinorAccidents(report),  // UPDATED CALCULATION
+                    calculateNoInjuryAccidents(report),
+                    escapeCsvValue(report.certifierName)
+                ];
+                
+                csvRows.push(row.join(','));
+            });
+            
+            // Add quarterly summary
+            const quarterlySummary = generateQuarterlySummary(reports);
+            addQuarterlySummaryToCsv(csvRows, quarterlySummary);
+            
+            // Add LEGEND after the data table
+            addLegendToCsv(csvRows);
+            
+            const filename = generateExportFilename('Ringkasan_KKP_Terkini', filters, options);
+            createAndDownloadCsv(csvRows, filename);
+        }
+
+        // 3. Quarterly Summary Export - WITH ABBREVIATIONS
+        function exportQuarterlySummary(options = {}) {
+            const reports = options.dataSource === 'all' ? allReports : currentReports;
+            const csvRows = [];
+            const timestamp = new Date();
+            const filters = getCurrentFilters();
+            
+            csvRows.push(',,,,LAPORAN KUARTA KKP (STRUKTUR TERKINI)');
+            csvRows.push(',,,,');
+            csvRows.push(`",,,,Dijana pada: ${timestamp.toLocaleString('ms-MY')}"`);
+            csvRows.push(`",,,,Jumlah Rekod: ${reports.length}"`);
+            
+            const activeFilters = getActiveFilterInfo(filters);
+            if (activeFilters) {
+                csvRows.push(`",,,,Filter: ${activeFilters}"`);
+            }
+            csvRows.push(',,,,');
+            
+            const quarterlyData = generateQuarterlySummary(reports);
+            
+            // Quarterly headers - WITH ABBREVIATIONS
+            const headers = [
+                'Suku',
+                'Bilangan Laporan',
+                'Kes Kemalangan Major (Kematian + Parah)',
+                'Kes Kemalangan Minor (Perubatan + First Aid)',  // UPDATED
+                'Kes Kemalangan Tiada Kecederaan',
+                'Jumlah Keseluruhan'
+            ];
+            
+            csvRows.push(headers.join(','));
+            
+            // Quarterly data
+            Object.entries(quarterlyData).forEach(([quarter, data]) => {
+                const total = data.majorAccidents + data.minorAccidents + data.noInjuryAccidents;
+                const row = [
+                    escapeCsvValue(quarter),
+                    data.reports,
+                    data.majorAccidents,  // Includes death cases
+                    data.minorAccidents,  // UPDATED CALCULATION
+                    data.noInjuryAccidents,
+                    total
+                ];
+                
+                csvRows.push(row.join(','));
+            });
+            
+            // Add overall totals
+            addQuarterlyTotalSummary(csvRows, quarterlyData);
+            
+            // Add LEGEND after the data table
+            addLegendToCsv(csvRows);
+            
+            const filename = generateExportFilename('Laporan_Kuarta_KKP_Terkini', filters, options);
+            createAndDownloadCsv(csvRows, filename);
+        }
+
+        // =========================================================================
+        // HELPER FUNCTIONS - UPDATED
+        // =========================================================================
+
+        // Enhanced data validation
+        function validateExportData(reports) {
+            if (!reports || reports.length === 0) {
+                throw new Error('Tiada data untuk dieksport');
+            }
+            
+            const invalidReports = reports.filter(report => !isValidReport(report));
+            if (invalidReports.length === reports.length) {
+                throw new Error('Semua data tidak valid untuk dieksport');
+            }
+            
+            return true;
+        }
+
+        function isValidReport(report) {
+            return report && 
+                   report.division && 
+                   report.quarter && 
+                   report.reportDate &&
+                   report.certifierName;
+        }
+
+        // Enhanced summary statistics - WITH ABBREVIATIONS
+        function addEnhancedSummary(csvRows, reports) {
+            if (reports.length === 0) return;
+            
+            csvRows.push('');
+            csvRows.push('STATISTIK TERPERINCI (STRUKTUR TERKINI):');
+            csvRows.push('');
+            
+            const summaries = {
+                'Jumlah Laporan': reports.length,
+                'Jumlah Cuti Sakit Pekerja Disebabkan Kemalangan': sumField(reports, 'sickLeave'),
+                'Jumlah cuti sakit pekerja akibat penyakit berjangkit pekerjaan': sumField(reports, 'sickLeaveOccInfectious'),
+                'Jumlah Kes Kematian': sumField(reports, 'deathCases'),
+                'Jumlah Kes Kemalangan Parah': sumField(reports, 'severeAccidents'),
+                'Jumlah Kes Rawatan Perubatan (Cuti Sakit < 5 Hari)': sumField(reports, 'medicalCases'),
+                'Jumlah Kes Rawatan Pertolongan Cemas': sumField(reports, 'firstAidCases'),
+                'Jumlah Penyakit Pekerjaan (Seksyen C)': sumField(reports, 'occupationalDisease'),  // MOVED TO SECTION C
+                'Jumlah Kebakaran': sumField(reports, 'fireCases'),
+                'Jumlah Kerosakan Harta Benda': sumField(reports, 'propertyDamage'),
+                'Jumlah Kejadian Hampir (Near Miss)': sumField(reports, 'nearMiss'),
+                'Jumlah Lain-lain insiden': sumField(reports, 'otherIncidents'),
+                'Jumlah Penyakit Berjangkit': sumField(reports, 'infectiousDisease'),
+                'Jumlah Mesyuarat KKP': sumField(reports, 'meetings'),
+                'Jumlah Latihan KKP': sumField(reports, 'trainings'),
+                'Jumlah Taklimat/Toolbox': sumField(reports, 'briefings'),
+                'Jumlah Pemeriksaan KKP (Pemeriksaan Dalaman & Luaran)': sumField(reports, 'inspections'),
+                'Jumlah Pelaporan Unsafe Act Unsafe Condition (UAUC)': sumField(reports, 'uauc'),
+                'Jumlah Lain-lain (Contohnya, Kempen atau Promosi Berkaitan KKP)': sumField(reports, 'otherActivities')
+            };
+            
+            Object.entries(summaries).forEach(([label, value]) => {
+                csvRows.push(`"${label}","${value}",,,`);
+            });
+        }
+
+        // Quarterly aggregation - UPDATED
+        function generateQuarterlySummary(reports) {
+            const quarterlyData = {};
+            
+            reports.forEach(report => {
+                if (!isValidReport(report)) return;
+                
+                const quarter = report.quarter;
+                if (!quarterlyData[quarter]) {
+                    quarterlyData[quarter] = {
+                        reports: 0,
+                        majorAccidents: 0,
+                        minorAccidents: 0,
+                        noInjuryAccidents: 0
+                    };
+                }
+                
+                quarterlyData[quarter].reports++;
+                quarterlyData[quarter].majorAccidents += calculateMajorAccidents(report);
+                quarterlyData[quarter].minorAccidents += calculateMinorAccidents(report);  // UPDATED
+                quarterlyData[quarter].noInjuryAccidents += calculateNoInjuryAccidents(report);
+            });
+            
+            return quarterlyData;
+        }
+
+        function addQuarterlySummaryToCsv(csvRows, quarterlyData) {
+            csvRows.push('');
+            csvRows.push('RINGKASAN KUARTA (STRUKTUR TERKINI):');
+            
+            Object.entries(quarterlyData).forEach(([quarter, data]) => {
+                const total = data.majorAccidents + data.minorAccidents + data.noInjuryAccidents;
+                csvRows.push(`"${quarter}","${data.reports} laporan","${total} jumlah kes",,,`);
+            });
+        }
+
+        function addQuarterlyTotalSummary(csvRows, quarterlyData) {
+            csvRows.push('');
+            csvRows.push('JUMLAH KESELURUHAN (STRUKTUR TERKINI):');
+            
+            const totals = {
+                reports: 0,
+                majorAccidents: 0,
+                minorAccidents: 0,
+                noInjuryAccidents: 0
+            };
+            
+            Object.values(quarterlyData).forEach(data => {
+                Object.keys(totals).forEach(key => {
+                    totals[key] += data[key] || 0;
+                });
+            });
+            
+            const overallTotal = totals.majorAccidents + totals.minorAccidents + totals.noInjuryAccidents;
+            csvRows.push(`"Jumlah","${totals.reports}","${totals.majorAccidents}","${totals.minorAccidents}","${totals.noInjuryAccidents}","${overallTotal}"`);
+        }
+
+        // Utility functions
+        function sumField(reports, field) {
+            return reports.reduce((sum, report) => sum + parseInt(safeGetValue(report[field], '0')), 0);
+        }
+
+        function getGlobalIndex(index) {
+            const startIndex = (currentPage - 1) * entriesPerPage;
+            return startIndex + index + 1;
+        }
+
+        function formatDateForExport(dateString) {
+            if (!dateString) return 'N/A';
+            return new Date(dateString).toLocaleDateString('ms-MY');
+        }
+
+        function formatTimestamp(timestamp) {
+            if (!timestamp) return 'N/A';
+            const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
+            return date.toLocaleString('ms-MY');
+        }
+
+        function getActiveFilterInfo(filters) {
+            const activeFilters = [];
+            if (filters.division) activeFilters.push(`Bahagian: ${filters.division}`);
+            if (filters.quarter) activeFilters.push(`Suku: ${filters.quarter}`);
+            if (filters.search) activeFilters.push(`Carian: "${filters.search}"`);
+            if (filters.startDate || filters.endDate) {
+                const dateRange = [];
+                if (filters.startDate) dateRange.push(formatDateForExport(filters.startDate));
+                if (filters.endDate) dateRange.push(formatDateForExport(filters.endDate));
+                activeFilters.push(`Tempoh: ${dateRange.join(' - ')}`);
+            }
+            
+            return activeFilters.join(', ');
+        }
+
+        function generateExportFilename(prefix, filters, options) {
+            const timestamp = new Date().toISOString().split('T')[0];
+            let sourceInfo = '';
+            
+            // Add data source information
+            if (options.dataSource === 'all') {
+                sourceInfo = '_SemuaData';
+            } else if (options.dataSource === 'filtered') {
+                sourceInfo = '_DataTerfilter';
+                // Add filter info for filtered data
+                if (filters.division) sourceInfo += `_${filters.division.replace(/\s+/g, '')}`;
+                if (filters.quarter) sourceInfo += `_${filters.quarter.replace(/\s+/g, '')}`;
+            } else {
+                sourceInfo = '_HalamanSemasa';
+            }
+            
+            return `${prefix}${sourceInfo}_${timestamp}`;
+        }
+
+        // Enhanced CSV value escaping
+        function escapeCsvValue(value) {
+            if (value === null || value === undefined) return '';
+            
+            const stringValue = String(value);
+            
+            // Escape quotes and wrap in quotes if contains comma, quote, or newline
+            if (stringValue.includes(',') || stringValue.includes('"') || stringValue.includes('\n') || stringValue.includes('\r')) {
+                return '"' + stringValue.replace(/"/g, '""') + '"';
+            }
+            
+            return stringValue;
+        }
+
+        // Create and trigger download
+        function createAndDownloadCsv(csvRows, filename) {
+            const csvContent = csvRows.join('\n');
+            const blob = new Blob([csvContent], { 
+                type: 'text/csv;charset=utf-8;' 
+            });
+            
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            link.setAttribute('href', url);
+            link.setAttribute('download', `${filename}.csv`);
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            
+            // Clean up URL object
+            setTimeout(() => URL.revokeObjectURL(url), 100);
+        }
+
+        // Reset export button
+        function resetExportAllButton(originalText) {
+            exportAllBtn.disabled = false;
+            exportAllBtn.textContent = originalText;
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LPKKP - Log Masuk</title>
+    <link rel="stylesheet" href="common.css">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #6e8efb, #a777e3);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 500px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+        }
+
+        .header {
+            background: #4a6cf7;
+            color: white;
+            padding: 25px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            font-weight: 600;
+        }
+
+        .form-container {
+            padding: 30px;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #333;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+            transition: border 0.3s;
+        }
+
+        .input-group input:focus {
+            border-color: #4a6cf7;
+            outline: none;
+        }
+
+        .btn {
+            background: #4a6cf7;
+            color: white;
+            border: none;
+            padding: 12px;
+            width: 100%;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .btn:hover {
+            background: #3a5cd8;
+        }
+
+        .message {
+            text-align: center;
+            margin-top: 20px;
+            color: #d9534f;
+            font-weight: 500;
+            min-height: 24px;
+        }
+
+        .success-message {
+            color: #28a745;
+        }
+
+        .info {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 13px;
+            color: #666;
+        }
+
+        .info strong {
+            color: #333;
+        }
+
+        .debug-toggle { display: none; }
+        .debug-info { display: none; }
+    </style>
+</head>
+<body>
+    <div class="container" id="loginPage">
+        <div class="header">
+            <h1>Login</h1>
+        </div>
+        <div class="form-container">
+            <form id="loginForm" action="#" method="post">
+                <div class="input-group">
+                    <label for="email">Email or Division (Bahagian/Zon/Unit)</label>
+                    <input type="text" id="email" placeholder="Enter email or division" value="" autocomplete="username">
+                </div>
+                <div class="input-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" placeholder="Enter your password" value="" autocomplete="current-password">
+                </div>
+                <button type="submit" class="btn" id="loginBtn">Login</button>
+            </form>
+            <div class="message" id="loginMessage"></div>
+
+            <div class="info">
+                <strong>First time?</strong> <a href="register.html" style="color:#4a6cf7;font-weight:600;text-decoration:none;">Sign up</a> with email, password, and division. You can log in with either email or division + password.
+            </div>
+
+            <div class="debug-toggle">
+                <button id="toggleDebug" style="display: none;">Show Debug Info</button>
+            </div>
+            <div class="debug-info" id="debugInfo" style="display: none;">
+                <h3>Debug Information</h3>
+                <p><strong>Firebase Status:</strong> <span id="firebaseStatus">Checking...</span></p>
+                <p><strong>Query Details:</strong> <span id="queryDetails">Not executed yet</span></p>
+                <p><strong>User Data:</strong> <span id="userData">No data retrieved</span></p>
+                <p><strong>LocalStorage:</strong> <span id="localStorageStatus">Not set</span></p>
+            </div>
+        </div>
+    </div>
+
+    <script src="config.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-firestore-compat.js"></script>
+    <script src="common.js"></script>
+    <script src="audit.js"></script>
+    <script>
+        const loginBtn = document.getElementById('loginBtn');
+        const loginMessage = document.getElementById('loginMessage');
+        const toggleDebugBtn = document.getElementById('toggleDebug');
+        const debugInfo = document.getElementById('debugInfo');
+        const firebaseStatus = document.getElementById('firebaseStatus');
+        const queryDetails = document.getElementById('queryDetails');
+        const userData = document.getElementById('userData');
+        const localStorageStatus = document.getElementById('localStorageStatus');
+
+        function updateDebugInfo(section, message) {
+            switch(section) {
+                case 'firebase': firebaseStatus.textContent = message; break;
+                case 'query': queryDetails.textContent = message; break;
+                case 'user': userData.textContent = message; break;
+                case 'storage': localStorageStatus.textContent = message; break;
+            }
+        }
+
+        let auth, db;
+        try {
+            auth = getAuth();
+            db = getDb();
+            updateDebugInfo('firebase', 'Initialized successfully');
+        } catch (error) {
+            updateDebugInfo('firebase', 'Error: ' + (error.message || ''));
+        }
+
+        function normalizeDivision(val) {
+            return (val || '').trim().toLowerCase().replace(/\//g, '_');
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            const params = new URLSearchParams(window.location.search);
+            const msg = params.get('msg');
+            const fromLogout = params.get('logout') === '1';
+
+            if (msg === 'pending') {
+                loginMessage.textContent = 'Your account is pending approval. Please wait for an admin to approve your registration.';
+                loginMessage.classList.remove('success-message');
+            } else if (msg === 'denied') {
+                loginMessage.textContent = 'Your registration was denied. Please contact an administrator.';
+                loginMessage.classList.remove('success-message');
+            } else if (msg === 'removed') {
+                loginMessage.textContent = 'Akaun anda telah dipadam. Sila hubungi pentadbir jika ini satu kesilapan.';
+                loginMessage.classList.remove('success-message');
+            }
+
+            if (fromLogout && auth) {
+                auth.signOut().catch(function() {});
+            }
+
+            auth && auth.onAuthStateChanged(user => {
+                const hasLogoutParam = new URLSearchParams(window.location.search).get('logout') === '1';
+                if (user && hasLogoutParam) {
+                    auth.signOut().catch(function() {});
+                    window.history.replaceState({}, '', 'login.html');
+                    return;
+                }
+                if (user) {
+                    const email = user.email || '';
+                    localStorage.setItem('userEmail', email);
+                    loginMessage.textContent = 'Signed in. Redirecting...';
+                    loginMessage.classList.add('success-message');
+                    setTimeout(() => { window.location.href = 'index.html'; }, 1200);
+                } else {
+                    if (hasLogoutParam) window.history.replaceState({}, '', 'login.html');
+                    updateDebugInfo('storage', 'No authenticated user');
+                }
+            });
+        });
+
+        document.getElementById('loginForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+            performLogin();
+        });
+
+        async function performLogin() {
+            const identifier = (document.getElementById('email').value || '').trim();
+            const password = document.getElementById('password').value;
+
+            if (!identifier || !password) {
+                loginMessage.textContent = 'Please enter email or division and password';
+                loginMessage.classList.remove('success-message');
+                return;
+            }
+
+            loginMessage.textContent = 'Signing in...';
+            loginMessage.classList.remove('success-message');
+            updateDebugInfo('query', `Signing in: ${identifier}`);
+
+            if (!identifier.includes('@')) {
+                const divisionKey = normalizeDivision(identifier);
+                try {
+                    const snap = await db.collection('divisionLookup').doc(divisionKey).get();
+                    if (!snap.exists) {
+                        loginMessage.textContent = 'Division not found. Sign up first or use your email.';
+                        loginMessage.classList.remove('success-message');
+                        return;
+                    }
+                    const data = snap.data() || {};
+                    const emails = Array.isArray(data.emails) ? data.emails : (data.email ? [data.email] : []);
+                    if (emails.length === 0) {
+                        loginMessage.textContent = 'Invalid division lookup. Try logging in with your email.';
+                        loginMessage.classList.remove('success-message');
+                        return;
+                    }
+                    let signedIn = false;
+                    for (let i = 0; i < emails.length; i++) {
+                        const e = (emails[i] || '').trim();
+                        if (!e) continue;
+                        try {
+                            const cred = await auth.signInWithEmailAndPassword(e, password);
+                            const user = cred.user;
+                            const signedEmail = (user && user.email ? user.email : e).toLowerCase();
+                            const roleDoc = await db.collection('userRoles').doc(signedEmail).get();
+                            const role = (roleDoc.data() || {}).role || 'pending';
+                            if (role === 'pending') {
+                                await auth.signOut();
+                                continue;
+                            }
+                            if (role === 'denied') {
+                                await auth.signOut();
+                                continue;
+                            }
+                            loginMessage.textContent = 'Signed in. Redirecting...';
+                            loginMessage.classList.add('success-message');
+                            localStorage.setItem('userEmail', signedEmail);
+                            writeAuditLog('login_success', { details: 'Log masuk dengan bahagian' });
+                            updateDebugInfo('user', 'Signed in: ' + signedEmail);
+                            setTimeout(() => { window.location.href = 'index.html'; }, 1200);
+                            signedIn = true;
+                            break;
+                        } catch (err) {
+                            if (i === emails.length - 1) {
+                                loginMessage.textContent = 'Invalid email/division or password. Sign up first if you are new.';
+                                loginMessage.classList.remove('success-message');
+                            }
+                            continue;
+                        }
+                    }
+                    if (!signedIn && !loginMessage.textContent) {
+                        loginMessage.textContent = 'Your account is pending or denied. Use your email to log in, or wait for admin approval.';
+                        loginMessage.classList.remove('success-message');
+                    }
+                } catch (lookupErr) {
+                    console.error('Division lookup error:', lookupErr);
+                    loginMessage.textContent = 'Could not look up division. Try logging in with your email.';
+                    loginMessage.classList.remove('success-message');
+                }
+                return;
+            }
+
+            const emailToUse = identifier.toLowerCase();
+            try {
+                const cred = await auth.signInWithEmailAndPassword(emailToUse, password);
+                const user = cred.user;
+                const signedEmail = (user && user.email ? user.email : emailToUse).toLowerCase();
+
+                const roleDoc = await db.collection('userRoles').doc(signedEmail).get();
+                const role = (roleDoc.data() || {}).role || 'pending';
+
+                if (role === 'pending') {
+                    await auth.signOut();
+                    loginMessage.textContent = 'Your account is pending approval. Please wait for an admin to approve your registration.';
+                    loginMessage.classList.remove('success-message');
+                    return;
+                }
+                if (role === 'denied') {
+                    await auth.signOut();
+                    loginMessage.textContent = 'Your registration was denied. Please contact an administrator.';
+                    loginMessage.classList.remove('success-message');
+                    return;
+                }
+
+                loginMessage.textContent = 'Signed in. Redirecting...';
+                loginMessage.classList.add('success-message');
+                localStorage.setItem('userEmail', signedEmail);
+                writeAuditLog('login_success', { details: 'Log masuk dengan email' });
+                updateDebugInfo('user', 'Signed in: ' + signedEmail);
+
+                setTimeout(() => { window.location.href = 'index.html'; }, 1200);
+            } catch (error) {
+                console.error('Login error:', error);
+                if (error.code === 'auth/user-not-found') {
+                    loginMessage.textContent = 'User not found. Sign up first to create an account.';
+                } else if (error.code === 'auth/wrong-password') {
+                    loginMessage.textContent = 'Incorrect password.';
+                } else if (error.code === 'auth/invalid-email') {
+                    loginMessage.textContent = 'Invalid email format.';
+                } else if (error.code === 'auth/operation-not-allowed') {
+                    loginMessage.textContent = 'Email/Password sign-in is disabled. Enable it in Firebase Console.';
+                } else if (error.code === 'auth/invalid-credential') {
+                    loginMessage.textContent = 'Invalid email/division or password. Sign up first if you are new.';
+                } else if (error.code === 'auth/configuration-not-found') {
+                    loginMessage.textContent = 'Firebase config mismatch. Ensure the app config matches your Firebase project.';
+                } else {
+                    loginMessage.textContent = 'Login error: ' + (error.message || 'Please try again.');
+                }
+                updateDebugInfo('query', `Error: ${error.code || ''} - ${error.message}`);
+            }
+        }
+    </script>
+</body>
+</html>
