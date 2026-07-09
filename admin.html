@@ -1,469 +1,13 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="ms">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin - Pengurusan Pengguna</title>
-    <link rel="stylesheet" href="common.css">
-    <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-
-        body {
-            background: linear-gradient(135deg, #6e8efb, #a777e3);
-            min-height: 100vh;
-            padding: 20px;
-            color: #333;
-        }
-
-        .header {
-            width: 100%;
-            max-width: 1200px;
-            background: #4a6cf7;
-            color: white;
-            padding: 20px;
-            border-radius: 10px 10px 0 0;
-            margin: 0 auto;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .header-title { display: flex; flex-direction: column; gap: 4px; }
-
-        .header h1 {
-            font-size: 22px;
-            font-weight: 600;
-        }
-
-        .header span { font-size: 14px; color: rgba(255,255,255,0.9); }
-
-        .header-actions { display: flex; gap: 10px; }
-
-        .btn {
-            border: none;
-            padding: 8px 16px;
-            font-size: 14px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: background 0.3s;
-        }
-
-        .btn-secondary {
-            background: #6c757d;
-            color: white;
-        }
-
-        .btn-secondary:hover { background: #5a6268; }
-
-        .btn-danger {
-            background: #dc3545;
-            color: white;
-        }
-
-        .btn-danger:hover {
-            background: #c82333;
-        }
-
-        .container {
-            width: 100%;
-            max-width: 1200px;
-            background: white;
-            border-radius: 0 0 10px 10px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-            padding: 30px;
-            margin: 0 auto;
-        }
-
-        .info-banner {
-            margin-bottom: 24px;
-            padding: 16px;
-            border: 1px solid #ddd;
-            background: #f8f9fa;
-            font-size: 14px;
-            color: #666;
-            line-height: 1.5;
-        }
-
-        .info-banner strong { display: block; margin-bottom: 4px; color: #333; }
-
-        .pending-approvals-section {
-            margin-bottom: 24px;
-            padding: 16px;
-            border: 1px solid #ffc107;
-            background: #fff8e6;
-            border-radius: 5px;
-        }
-
-        .pending-approvals-section strong { display: block; margin-bottom: 4px; color: #856404; }
-        .pending-desc { font-size: 13px; color: #856404; margin-bottom: 12px; }
-        .pending-list { display: flex; flex-wrap: wrap; gap: 12px; }
-        .pending-item {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 10px 14px;
-            background: white;
-            border: 1px solid #dee2e6;
-            border-radius: 5px;
-            font-size: 14px;
-        }
-        .pending-item span { flex: 1; }
-        .pending-item .btn-approve { background: #28a745; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-weight: 600; }
-        .pending-item .btn-approve:hover { background: #218838; }
-        .pending-item .btn-deny { background: #dc3545; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-weight: 600; }
-        .pending-item .btn-deny:hover { background: #c82333; }
-        .pending-empty { color: #856404; font-size: 14px; }
-        .pending-approvals-section.hidden { display: none; }
-
-        .divisions-section {
-            margin-top: 24px;
-            margin-bottom: 24px;
-            padding: 0;
-            border: 1px solid #4a6cf7;
-            background: #f0f4ff;
-            border-radius: 5px;
-        }
-        .divisions-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 12px 16px;
-            cursor: pointer;
-        }
-        .divisions-header strong { color: #4a6cf7; }
-        .divisions-toggle-indicator {
-            font-size: 13px;
-            color: #555;
-        }
-        .divisions-body {
-            padding: 0 16px 16px 16px;
-        }
-        .divisions-section.collapsed .divisions-body {
-            display: none;
-        }
-        .audit-trail-section.collapsed .divisions-body {
-            display: none;
-        }
-        .divisions-section.collapsed .divisions-toggle-indicator::after,
-        .audit-trail-section.collapsed .divisions-toggle-indicator::after {
-            content: ' (dibuka)';
-        }
-        .divisions-section:not(.collapsed) .divisions-toggle-indicator::after,
-        .audit-trail-section:not(.collapsed) .divisions-toggle-indicator::after {
-            content: ' (ditutup)';
-        }
-        .divisions-desc { font-size: 13px; color: #555; margin-bottom: 12px; }
-        .divisions-toolbar { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-bottom: 12px; }
-        .divisions-toolbar input { padding: 8px 12px; border: 1px solid #ddd; border-radius: 5px; font-size: 14px; min-width: 180px; }
-        .divisions-toolbar .btn-add { background: #28a745; color: white; border: none; padding: 8px 16px; border-radius: 5px; font-weight: 600; cursor: pointer; }
-        .divisions-toolbar .btn-add:hover { background: #218838; }
-        .divisions-toolbar .btn-save { background: #4a6cf7; color: white; border: none; padding: 8px 16px; border-radius: 5px; font-weight: 600; cursor: pointer; }
-        .divisions-toolbar .btn-save:hover { background: #3a5cd8; }
-        .divisions-list { display: flex; flex-wrap: wrap; gap: 8px; }
-        .division-tag {
-            display: inline-flex; align-items: center; gap: 6px;
-            padding: 6px 10px; background: white; border: 1px solid #4a6cf7; border-radius: 5px;
-            font-size: 14px; color: #333;
-        }
-        .division-tag .btn-edit-division, .division-tag .btn-remove-division {
-            border: none; padding: 2px 8px; border-radius: 4px; font-size: 12px; cursor: pointer;
-        }
-        .division-tag .btn-edit-division { background: #4a6cf7; color: white; }
-        .division-tag .btn-edit-division:hover { background: #3a5cd8; }
-        .division-tag .btn-remove-division { background: #dc3545; color: white; }
-        .division-tag .btn-remove-division:hover { background: #c82333; }
-        .division-tag.editing input { padding: 4px 8px; font-size: 14px; width: 120px; border: 1px solid #4a6cf7; border-radius: 4px; }
-
-        .audit-trail-section {
-            margin-top: 24px;
-            margin-bottom: 24px;
-            padding: 0;
-            border: 1px solid #6c757d;
-            background: #f8f9fa;
-            border-radius: 5px;
-        }
-        .audit-trail-section .divisions-header strong { color: #495057; }
-        .audit-trail-desc { font-size: 13px; color: #555; margin-bottom: 12px; }
-        .audit-trail-toolbar {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            align-items: center;
-            margin-bottom: 12px;
-        }
-        .audit-trail-toolbar select,
-        .audit-trail-toolbar input {
-            padding: 8px 12px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            font-size: 14px;
-        }
-        .audit-trail-toolbar .btn-refresh {
-            background: #6c757d;
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 5px;
-            font-weight: 600;
-            cursor: pointer;
-        }
-        .audit-trail-toolbar .btn-refresh:hover { background: #5a6268; }
-        .audit-trail-table-wrap {
-            overflow-x: auto;
-            max-height: 420px;
-            overflow-y: auto;
-            border: 1px solid #dee2e6;
-            border-radius: 5px;
-        }
-        .audit-trail-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 0;
-        }
-        .audit-trail-table th {
-            background: #495057;
-            position: sticky;
-            top: 0;
-            z-index: 1;
-        }
-        .audit-trail-table td {
-            font-size: 13px;
-            vertical-align: top;
-        }
-        .audit-action-pill {
-            display: inline-block;
-            padding: 3px 8px;
-            border-radius: 4px;
-            font-size: 11px;
-            font-weight: 600;
-            background: rgba(73, 80, 87, 0.12);
-            color: #495057;
-            white-space: nowrap;
-        }
-        .audit-trail-empty {
-            padding: 16px;
-            color: #666;
-            font-size: 14px;
-        }
-        .audit-trail-footer {
-            margin-top: 12px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 10px;
-            font-size: 13px;
-            color: #666;
-        }
-        .audit-trail-footer .btn-load-more {
-            background: #495057;
-            color: white;
-            border: none;
-            padding: 8px 14px;
-            border-radius: 5px;
-            font-weight: 600;
-            cursor: pointer;
-        }
-        .audit-trail-footer .btn-load-more:hover { background: #343a40; }
-        .audit-trail-footer .btn-load-more:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-        }
-
-        .filters {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 12px;
-            margin-bottom: 24px;
-            align-items: center;
-        }
-
-        .filters label { font-size: 14px; color: #666; }
-
-        .filters select,
-        .filters input {
-            padding: 8px 12px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            font-size: 14px;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 16px;
-        }
-
-        th, td {
-            padding: 12px;
-            border-bottom: 1px solid #ddd;
-            font-size: 14px;
-            text-align: left;
-        }
-
-        th {
-            background: #4a6cf7;
-            color: white;
-            font-weight: 600;
-        }
-
-        tr:nth-child(even) { background: #f8f9fa; }
-
-        .role-pill {
-            display: inline-block;
-            padding: 4px 10px;
-            border-radius: 4px;
-            font-size: 12px;
-            font-weight: 600;
-        }
-
-        .role-admin {
-            background: rgba(220, 53, 69, 0.15);
-            color: #c82333;
-        }
-
-        .role-user {
-            background: rgba(74, 108, 247, 0.15);
-            color: #4a6cf7;
-        }
-
-        .role-pending {
-            background: rgba(201, 162, 39, 0.2);
-            color: #856404;
-        }
-
-        .role-denied {
-            background: rgba(108, 117, 125, 0.2);
-            color: #495057;
-        }
-
-        .status-pill {
-            display: inline-block;
-            padding: 4px 8px;
-            border-radius: 999px;
-            font-size: 12px;
-        }
-
-        .status-active {
-            background: #d1e7dd;
-            color: #0f5132;
-        }
-
-        .status-disabled {
-            background: #f8d7da;
-            color: #842029;
-        }
-
-        .actions-cell button {
-            margin-right: 6px;
-            margin-bottom: 4px;
-            padding: 4px 8px;
-            font-size: 12px;
-            border-radius: 4px;
-            border: none;
-            cursor: pointer;
-        }
-
-        .user-modal-overlay {
-            display: none;
-            position: fixed;
-            inset: 0;
-            background: rgba(0,0,0,0.5);
-            z-index: 2000;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-        }
-        .user-modal-overlay.open { display: flex; }
-        .user-modal-content {
-            background: #fff;
-            border-radius: 10px;
-            max-width: 440px;
-            width: 100%;
-            padding: 24px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
-        }
-        .user-modal-content h3 { margin-bottom: 16px; color: #4a6cf7; font-size: 18px; }
-        .user-modal-field { margin-bottom: 14px; }
-        .user-modal-field label { display: block; font-size: 12px; color: #666; margin-bottom: 4px; }
-        .user-modal-field .value { font-size: 15px; color: #333; }
-        .user-modal-field input,
-        .user-modal-field select {
-            width: 100%;
-            padding: 8px 10px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            font-size: 14px;
-        }
-        .user-modal-actions {
-            margin-top: 20px;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-        }
-        .user-modal-actions .btn { padding: 8px 16px; font-size: 14px; cursor: pointer; border-radius: 5px; border: none; font-weight: 600; }
-        .user-modal-actions .btn-close { background: #6c757d; color: white; }
-        .user-modal-actions .btn-save { background: #4a6cf7; color: white; }
-        .user-modal-actions .btn-delete { background: #dc3545; color: white; }
-
-        .btn-small-primary {
-            background: #4a6cf7;
-            color: white;
-        }
-
-        .btn-small-primary:hover { background: #3a5cd8; }
-
-        .btn-small-outline {
-            background: white;
-            color: #4a6cf7;
-            border: 1px solid #4a6cf7;
-        }
-
-        .btn-delete { background: #dc3545; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 13px; font-weight: 600; }
-        .btn-delete:hover { background: #c82333; }
-        .btn-small-outline:hover {
-            background: rgba(74, 108, 247, 0.08);
-        }
-
-        .message {
-            margin-top: 15px;
-            font-size: 14px;
-            min-height: 20px;
-        }
-
-        .message.success {
-            color: #0f5132;
-        }
-
-        .message.error {
-            color: #842029;
-        }
-
-        @media (max-width: 768px) {
-            .header {
-                flex-direction: column;
-                gap: 10px;
-                align-items: flex-start;
-            }
-
-            .header-actions {
-                width: 100%;
-                justify-content: flex-end;
-            }
-
-            th:nth-child(2),
-            td:nth-child(2),
-            th:nth-child(4),
-            td:nth-child(4) {
-                display: none;
-            }
-        }
-    </style>
+    <link rel="stylesheet" href="assets/css/bootstrap.min.css">
+    <link rel="stylesheet" href="assets/vendors/bootstrap-icons/bootstrap-icons.css">
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="stylesheet" href="theme-lpkkp.css">
 
     <script src="config.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
@@ -473,37 +17,124 @@
     <script src="audit.js"></script>
 </head>
 <body>
-    <div class="header">
-        <div class="header-title">
-            <h1>Panel Admin</h1>
-            <span id="adminInfo">Memuatkan...</span>
-        </div>
-        <div class="header-actions">
-            <a href="profile.html" class="btn btn-secondary">Profil</a>
-            <button class="btn btn-secondary" id="backBtn">Laman Utama</button>
-            <button class="btn btn-danger" id="logoutBtn">Log Keluar</button>
+    <div id="authLoadingOverlay" class="auth-loading-overlay" aria-live="polite" role="status">
+        <div class="auth-loading-card">
+            <div class="auth-loading-brand" aria-hidden="true">
+                <span class="auth-loading-brand-icon"><i class="bi bi-shield-check"></i></span>
+            </div>
+            <h2 class="auth-loading-title">LPKKP</h2>
+            <p class="auth-loading-subtitle">Sistem Laporan Prestasi KKP</p>
+            <div class="auth-loading-spinner" aria-hidden="true"></div>
+            <p class="auth-loading-text">Memuatkan<span class="auth-loading-dots" aria-hidden="true"></span></p>
         </div>
     </div>
 
-    <div class="container">
-        <nav class="breadcrumb" aria-label="Navigasi"><a href="index.html">Laman Utama</a> &gt; <strong>Admin</strong></nav>
+    <div class="admin-shell hidden" id="adminShell">
+        <div class="sidebar-backdrop" data-sidebar-close></div>
+
+        <aside class="admin-sidebar" id="adminSidebar" aria-label="Navigasi utama">
+            <div class="sidebar-header">
+                <a class="brand-mark" href="index.html" aria-label="LPKKP dashboard">
+                    <span class="brand-icon"><i class="bi bi-shield-check" aria-hidden="true"></i></span>
+                    <span class="brand-copy">
+                        <span class="brand-title">LPKKP</span>
+                        <span class="brand-subtitle">Laporan Prestasi KKP</span>
+                    </span>
+                </a>
+            </div>
+
+            <nav class="sidebar-nav">
+                <a class="nav-link" href="index.html" data-nav="index.html">
+                    <span class="nav-icon"><i class="bi bi-speedometer2" aria-hidden="true"></i></span>
+                    <span class="nav-text">Dashboard</span>
+                </a>
+                <a class="nav-link" href="form.html" data-nav="form.html">
+                    <span class="nav-icon"><i class="bi bi-file-earmark-text" aria-hidden="true"></i></span>
+                    <span class="nav-text">Borang Laporan</span>
+                </a>
+                <a class="nav-link admin-only-nav" href="data.html" data-nav="data.html">
+                    <span class="nav-icon"><i class="bi bi-table" aria-hidden="true"></i></span>
+                    <span class="nav-text">Data Laporan</span>
+                </a>
+                <a class="nav-link active admin-only-nav" href="admin.html" data-nav="admin.html" aria-current="page">
+                    <span class="nav-icon"><i class="bi bi-gear" aria-hidden="true"></i></span>
+                    <span class="nav-text">Panel Admin</span>
+                </a>
+                <a class="nav-link" href="profile.html" data-nav="profile.html">
+                    <span class="nav-icon"><i class="bi bi-person-badge" aria-hidden="true"></i></span>
+                    <span class="nav-text">Profil</span>
+                </a>
+            </nav>
+
+            <div class="sidebar-user">
+                <strong>Pengguna</strong>
+                <small>LPKKP</small>
+            </div>
+
+            <div class="sidebar-footer">
+                <span class="status-dot"></span>
+                <span class="sidebar-footer-text">Sistem aktif</span>
+            </div>
+        </aside>
+
+        <div class="admin-main">
+            <nav class="navbar admin-navbar navbar-expand bg-white">
+                <div class="container-fluid px-3 px-lg-4">
+                    <button class="sidebar-toggle" type="button" data-sidebar-toggle aria-controls="adminSidebar" aria-expanded="true" aria-label="Togol sidebar">
+                        <span></span><span></span><span></span>
+                    </button>
+                    <div class="navbar-actions ms-auto">
+                        <button class="icon-button theme-toggle" type="button" data-theme-toggle aria-label="Tukar tema warna" title="Tukar tema warna">
+                            <i class="bi bi-moon-stars" data-theme-icon aria-hidden="true"></i>
+                        </button>
+                        <a href="index.html" class="btn btn-outline-secondary btn-sm ms-2">Laman Utama</a>
+                        <button class="btn btn-outline-danger btn-sm ms-2" type="button" data-logout>Log Keluar</button>
+                    </div>
+                </div>
+            </nav>
+
+            <main class="dashboard-content lpkkp-admin-page">
+                <div class="container-fluid px-3 px-lg-4 py-4">
+                    <div class="page-heading mb-4">
+                        <div class="page-heading-copy">
+                            <span class="page-icon"><i class="bi bi-gear" aria-hidden="true"></i></span>
+                            <div>
+                                <p class="eyebrow mb-1">Pentadbiran</p>
+                                <h1 class="h3 mb-1">Panel Admin</h1>
+                                <p class="text-muted mb-0" id="adminInfo">Memuatkan...</p>
+                            </div>
+                        </div>
+                    </div>
+
         <div class="info-banner">
             <strong>Admin access</strong>
             This page is for administrators only. You can view users and manage simple roles stored in Firestore (e.g. <code>admin</code> / <code>user</code>).
         </div>
 
-        <div class="pending-approvals-section hidden" id="pendingApprovalsSection">
-            <strong>Pending approvals</strong>
-            <p class="pending-desc">New registrations waiting for your approval. Accept to grant access; Deny to reject.</p>
-            <div id="pendingApprovalsList" class="pending-list">
-                <!-- Filled by JS -->
+        <div class="panel pending-approvals-section hidden mb-4" id="pendingApprovalsSection">
+            <div class="panel-header pending-approvals-header">
+                <h2 class="h5 mb-0 section-title">
+                    <i class="bi bi-person-check" aria-hidden="true"></i>
+                    <span>Pending approvals</span>
+                </h2>
+            </div>
+            <div class="p-3 p-lg-4">
+                <p class="pending-desc text-muted mb-3">New registrations waiting for your approval. Accept to grant access; Deny to reject.</p>
+                <div id="pendingApprovalsList" class="pending-list">
+                    <!-- Filled by JS -->
+                </div>
             </div>
         </div>
 
-        <div class="filters">
+        <div class="panel mb-4">
+            <div class="panel-header">
+                <h2 class="h5 mb-0 section-title"><i class="bi bi-people" aria-hidden="true"></i><span>Pengguna Berdaftar</span></h2>
+            </div>
+            <div class="p-3 p-lg-4">
+        <div class="lpkkp-admin-filters">
             <div>
                 <label for="roleFilter">Filter by role:</label>
-                <select id="roleFilter">
+                <select id="roleFilter" class="form-select form-select-sm">
                     <option value="all">All</option>
                     <option value="pending">Pending</option>
                     <option value="admin">Admin</option>
@@ -514,11 +145,12 @@
             </div>
             <div>
                 <label for="searchInput">Search email or division:</label>
-                <input id="searchInput" type="text" placeholder="Type email or division...">
+                <input id="searchInput" type="text" class="form-control form-control-sm" placeholder="Type email or division...">
             </div>
         </div>
 
-        <table>
+        <div class="table-responsive">
+        <table class="lpkkp-admin-table">
             <thead>
                 <tr>
                     <th>Email</th>
@@ -533,6 +165,9 @@
                 <!-- Filled by JS -->
             </tbody>
         </table>
+        </div>
+            </div>
+        </div>
 
         <div class="divisions-section collapsed" id="divisionsSection">
             <div class="divisions-header" id="divisionsHeader">
@@ -593,7 +228,13 @@
             </div>
         </div>
 
-        <div id="userViewModal" class="user-modal-overlay" aria-hidden="true">
+        <div class="lpkkp-admin-message" id="message"></div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <div id="userViewModal" class="user-modal-overlay" aria-hidden="true">
             <div class="user-modal-content">
                 <h3>Lihat Akaun</h3>
                 <div class="user-modal-field"><label>Username</label><div class="value" id="viewUsername">—</div></div>
@@ -645,17 +286,15 @@
             </div>
         </div>
 
-        <div class="message" id="message"></div>
-    </div>
-
     <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-functions-compat.js"></script>
+    <script src="assets/js/bootstrap.bundle.min.js"></script>
+    <script src="assets/js/main.js"></script>
+    <script src="layout.js"></script>
     <script>
         const auth = getAuth();
         const db = getDb();
 
         const adminInfoEl = document.getElementById('adminInfo');
-        const backBtn = document.getElementById('backBtn');
-        const logoutBtn = document.getElementById('logoutBtn');
         const usersTableBody = document.getElementById('usersTableBody');
         const roleFilter = document.getElementById('roleFilter');
         const searchInput = document.getElementById('searchInput');
@@ -670,12 +309,12 @@
 
         function showMessage(text, type = 'success') {
             messageEl.textContent = text;
-            messageEl.className = 'message ' + (type === 'error' ? 'error' : 'success');
+            messageEl.className = 'lpkkp-admin-message ' + (type === 'error' ? 'error' : 'success');
         }
 
         function clearMessage() {
             messageEl.textContent = '';
-            messageEl.className = 'message';
+            messageEl.className = 'lpkkp-admin-message';
         }
 
         let divisionsLoaded = false;
@@ -713,7 +352,7 @@
             }
             if (typeof entry.count === 'number') parts.push('Kiraan: ' + entry.count);
             if (entry.reportId) parts.push('ID: ' + entry.reportId);
-            return parts.join(' · ') || '—';
+            return parts.join(' \u00b7 ') || '\u2014';
         }
 
         function getVisibleAuditEntries() {
@@ -817,9 +456,16 @@
                 });
         }
 
-        function onAdminReady(user) {
+        function onAdminReady(user, info) {
             const email = (user.email || '').toLowerCase().trim();
             adminInfoEl.textContent = 'Admin: ' + email;
+            var overlayEl = document.getElementById('authLoadingOverlay');
+            var shellEl = document.getElementById('adminShell');
+            if (overlayEl) overlayEl.classList.add('hidden');
+            if (shellEl) shellEl.classList.remove('hidden');
+            if (typeof initLpkkpShell === 'function') {
+                initLpkkpShell({ role: 'admin', user: user, profile: info || {} });
+            }
             loadUsers();
         }
 
@@ -834,7 +480,7 @@
                     renderDivisionsList();
                 })
                 .catch(() => {
-                    listEl.innerHTML = '<span class="message error">Gagal memuatkan senarai bahagian.</span>';
+                    listEl.innerHTML = '<span class="lpkkp-admin-message error">Gagal memuatkan senarai bahagian.</span>';
                 });
         }
 
@@ -1000,10 +646,15 @@
                 const emailEsc = (u.email || '').replace(/\\/g, '\\\\').replace(/'/g, "\\'");
                 const divisionEsc = (u.division || '').replace(/\\/g, '\\\\').replace(/'/g, "\\'");
                 return `<div class="pending-item">
-                    <span>${u.email} · ${u.division || '-'} · ${createdText}</span>
-                    <button class="btn-approve" onclick="setRole('${emailEsc}','user')">Accept</button>
-                    <button class="btn-deny" onclick="setRole('${emailEsc}','denied')">Deny</button>
-                    <button class="btn-delete" onclick="deleteUser('${emailEsc}','${divisionEsc}')">Padam</button>
+                    <div class="pending-item-info">
+                        <div class="pending-item-email">${u.email}</div>
+                        <div class="pending-item-meta">${u.division || '-'} \u00b7 ${createdText}</div>
+                    </div>
+                    <div class="pending-item-actions">
+                        <button class="btn-approve" onclick="setRole('${emailEsc}','user')">Accept</button>
+                        <button class="btn-deny" onclick="setRole('${emailEsc}','denied')">Deny</button>
+                        <button class="btn-delete-pending" onclick="deleteUser('${emailEsc}','${divisionEsc}')">Padam</button>
+                    </div>
                 </div>`;
             }).join('');
         }
@@ -1285,17 +936,6 @@
                     showMessage('Gagal memadam akaun.', 'error');
                 });
         };
-
-        backBtn.addEventListener('click', () => {
-            window.location.href = 'index.html';
-        });
-
-        logoutBtn.addEventListener('click', () => {
-            auth.signOut().finally(() => {
-                localStorage.removeItem('userEmail');
-                window.location.href = 'login.html?logout=1';
-            });
-        });
 
         roleFilter.addEventListener('change', renderUsers);
         searchInput.addEventListener('input', () => {

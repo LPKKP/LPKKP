@@ -1,900 +1,17 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="ms">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Data Laporan - KKP</title>
-    <link rel="stylesheet" href="common.css">
-    <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-        
-        body {
-            background: linear-gradient(135deg, #6e8efb, #a777e3);
-            min-height: 100vh;
-            padding: 20px;
-        }
-        
-        .header {
-            width: 100%;
-            max-width: 1400px;
-            background: #4a6cf7;
-            color: white;
-            padding: 20px;
-            text-align: center;
-            border-radius: 10px 10px 0 0;
-            margin: 0 auto;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        
-        .header h1 {
-            font-size: 24px;
-            font-weight: 600;
-        }
-        
-        .logout-btn {
-            background: #dc3545;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 5px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: background 0.3s;
-        }
-        
-        .logout-btn:hover {
-            background: #c82333;
-        }
-        
-        .back-btn {
-            background: #6c757d;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 5px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: background 0.3s;
-            text-decoration: none;
-            display: inline-block;
-            margin-right: 10px;
-        }
-        
-        .back-btn:hover {
-            background: #5a6268;
-        }
-        
-        .data-container {
-            width: 100%;
-            max-width: 1400px;
-            background: white;
-            border-radius: 0 0 10px 10px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-            padding: 30px;
-            margin: 0 auto;
-            margin-bottom: 20px;
-            overflow-x: auto;
-        }
-        
-        .page-title {
-            text-align: center;
-            margin-bottom: 25px;
-            color: #4a6cf7;
-            padding-bottom: 15px;
-            border-bottom: 1px solid #eee;
-        }
-        
-        .data-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-        }
-        
-        .data-table th {
-            background-color: #4a6cf7;
-            color: white;
-            padding: 15px;
-            text-align: center;
-            font-weight: 600;
-            position: sticky;
-            top: 0;
-            font-size: 14px;
-            cursor: pointer;
-            user-select: none;
-            transition: background-color 0.3s;
-        }
-        
-        .data-table th.sortable:hover {
-            background-color: #3a5cd5;
-        }
-        
-        .data-table th.sort-asc {
-            background-color: #2a4cb3;
-        }
-        
-        .data-table th.sort-desc {
-            background-color: #2a4cb3;
-        }
-        
-        .data-table th .sort-indicator {
-            margin-left: 5px;
-            font-size: 12px;
-        }
-        
-        .data-table td {
-            padding: 15px;
-            border-bottom: 1px solid #ddd;
-            font-size: 14px;
-            text-align: center;
-        }
-        
-        .data-table tr:nth-child(even) {
-            background-color: #f8f9fa;
-        }
-        
-        .data-table tr:hover {
-            background-color: #f1f3ff;
-        }
-        
-        .table-controls {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
-            gap: 15px;
-        }
-        
-        .search-box {
-            padding: 12px 15px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            font-size: 16px;
-            width: 300px;
-            max-width: 100%;
-            transition: border-color 0.3s, box-shadow 0.3s;
-        }
-        
-        .search-box:focus {
-            outline: none;
-            border-color: #4a6cf7;
-            box-shadow: 0 0 0 3px rgba(74, 108, 247, 0.1);
-        }
-        
-        .search-box.loading {
-            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%234a6cf7" width="18px" height="18px"><path d="M12 4V2A10 10 0 002 12h2a8 8 0 018-8z"/></svg>');
-            background-repeat: no-repeat;
-            background-position: right 12px center;
-            background-size: 16px;
-        }
-        
-        .entries-info {
-            color: #666;
-            font-size: 14px;
-        }
-        
-        .pagination {
-            display: flex;
-            gap: 10px;
-            margin-top: 20px;
-            justify-content: center;
-            align-items: center;
-        }
-        
-        .pagination button {
-            background: #f8f9fa;
-            border: 1px solid #dee2e6;
-            padding: 8px 15px;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-        
-        .pagination button:hover:not(:disabled) {
-            background: #e9ecef;
-        }
-        
-        .pagination button:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-        
-        .pagination button.active {
-            background: #4a6cf7;
-            color: white;
-            border-color: #4a6cf7;
-        }
-        
-        .pagination-info {
-            margin: 0 15px;
-            color: #666;
-            font-size: 14px;
-        }
-        
-        /* Button Container Styles */
-        .button-container {
-            display: flex;
-            gap: 8px;
-            justify-content: center;
-            flex-wrap: nowrap;
-        }
-        
-        .view-btn, .download-btn, .export-btn, .export-all-btn {
-            border: none;
-            padding: 8px 12px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 13px;
-            font-weight: 500;
-            transition: all 0.3s;
-            white-space: nowrap;
-            min-width: 80px;
-        }
-        
-        .view-btn {
-            background: #17a2b8;
-            color: white;
-        }
-        
-        .view-btn:hover {
-            background: #138496;
-            transform: translateY(-1px);
-        }
-        
-        .download-btn {
-            background: #28a745;
-            color: white;
-        }
-        
-        .download-btn:hover {
-            background: #218838;
-            transform: translateY(-1px);
-        }
-        
-        .export-btn {
-            background: #6f42c1;
-            color: white;
-        }
-        
-        .export-btn:hover {
-            background: #5e35b1;
-            transform: translateY(-1px);
-        }
-        
-        /* Export All Button Styles */
-        .export-all-btn {
-            background: #fd7e14;
-            color: white;
-        }
-        
-        .export-all-btn:hover {
-            background: #e96a10;
-            transform: translateY(-1px);
-        }
-        
-        .export-all-btn:disabled {
-            background: #6c757d;
-            cursor: not-allowed;
-            transform: none;
-        }
-        
-        /* Clear Button Styles */
-        .clear-btn {
-            background: #dc3545;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 5px;
-            font-size: 14px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s;
-            white-space: nowrap;
-        }
-        
-        .clear-btn:hover {
-            background: #c82333;
-            transform: translateY(-1px);
-        }
-        
-        .clear-btn:disabled {
-            background: #6c757d;
-            cursor: not-allowed;
-            transform: none;
-        }
-        
-        .lampiran-btn {
-            background: #6f42c1;
-            color: white;
-            border: none;
-            padding: 8px 12px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 13px;
-            font-weight: 500;
-            transition: all 0.3s;
-            white-space: nowrap;
-        }
-        .lampiran-btn:hover {
-            background: #5e35b1;
-            transform: translateY(-1px);
-        }
-        
-        /* Lightbox gallery (Lampiran) */
-        .lightbox-overlay {
-            display: none;
-            position: fixed;
-            inset: 0;
-            background: rgba(0,0,0,0.92);
-            z-index: 10000;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-        }
-        .lightbox-overlay.open { display: flex; }
-        .lightbox-content {
-            position: relative;
-            max-width: 95vw;
-            max-height: 95vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-        .lightbox-content img {
-            max-width: 90vw;
-            max-height: 80vh;
-            object-fit: contain;
-            border-radius: 8px;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.5);
-        }
-        .lightbox-caption {
-            color: #fff;
-            margin-top: 12px;
-            text-align: center;
-            font-size: 14px;
-            max-width: 90vw;
-        }
-        .lightbox-close {
-            position: absolute;
-            top: -40px;
-            right: 0;
-            background: rgba(255,255,255,0.2);
-            color: #fff;
-            border: none;
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            font-size: 24px;
-            cursor: pointer;
-            line-height: 1;
-            transition: background 0.2s;
-        }
-        .lightbox-close:hover { background: rgba(255,255,255,0.3); }
-        .lightbox-prev, .lightbox-next {
-            position: absolute;
-            top: 50%;
-            transform: translateY(-50%);
-            background: rgba(255,255,255,0.2);
-            color: #fff;
-            border: none;
-            width: 48px;
-            height: 48px;
-            border-radius: 50%;
-            font-size: 24px;
-            cursor: pointer;
-            transition: background 0.2s;
-            line-height: 1;
-        }
-        .lightbox-prev:hover, .lightbox-next:hover { background: rgba(255,255,255,0.35); }
-        .lightbox-prev { left: -60px; }
-        .lightbox-next { right: -60px; }
-        .lightbox-counter { color: rgba(255,255,255,0.8); font-size: 13px; margin-top: 8px; }
-        @media (max-width: 768px) {
-            .lightbox-prev { left: 10px; }
-            .lightbox-next { right: 10px; }
-        }
-        
-        /* Enhanced Filter Controls */
-        .filter-controls {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 15px;
-            flex-wrap: wrap;
-        }
-        
-        .filter-select {
-            padding: 10px 12px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            font-size: 14px;
-            background: white;
-            transition: border-color 0.3s;
-        }
-        
-        .filter-select:focus {
-            outline: none;
-            border-color: #4a6cf7;
-        }
-        
-        .date-range-container {
-            display: flex;
-            gap: 10px;
-            align-items: center;
-        }
-        
-        .date-range-separator {
-            color: #666;
-            font-weight: bold;
-        }
-        
-        /* Enhanced Search Results Indicator */
-        .search-results-info {
-            background: #e7f3ff;
-            border: 1px solid #b3d9ff;
-            border-radius: 5px;
-            padding: 10px 15px;
-            margin-bottom: 15px;
-            font-size: 14px;
-            color: #0066cc;
-        }
-        
-        .search-results-info strong {
-            color: #004d99;
-        }
-        
-        /* PDF Viewer Modal Styles */
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 1000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            overflow: auto;
-            background-color: rgba(0,0,0,0.9);
-        }
-        
-        .modal-content {
-            position: relative;
-            background-color: #fefefe;
-            margin: 2% auto;
-            padding: 0;
-            border: none;
-            border-radius: 10px;
-            width: 90%;
-            height: 90vh;
-            max-width: 1200px;
-        }
-        
-        .close {
-            position: absolute;
-            top: 15px;
-            right: 25px;
-            color: #fff;
-            font-size: 40px;
-            font-weight: bold;
-            cursor: pointer;
-            z-index: 1001;
-            background: rgba(0,0,0,0.5);
-            border-radius: 50%;
-            width: 50px;
-            height: 50px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        .close:hover,
-        .close:focus {
-            color: #fff;
-            background: rgba(0,0,0,0.7);
-            text-decoration: none;
-        }
-        
-        .pdf-viewer {
-            width: 100%;
-            height: 100%;
-            border: none;
-            border-radius: 10px;
-        }
-        
-        .modal-header {
-            position: absolute;
-            top: 15px;
-            left: 25px;
-            color: white;
-            font-size: 18px;
-            font-weight: bold;
-            z-index: 1001;
-            background: rgba(0,0,0,0.5);
-            padding: 10px 15px;
-            border-radius: 5px;
-        }
-        
-        /* Confirmation Modal Styles */
-        .confirmation-modal {
-            display: none;
-            position: fixed;
-            z-index: 2000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0,0,0,0.7);
-        }
-        
-        .confirmation-content {
-            background-color: #fefefe;
-            margin: 15% auto;
-            padding: 30px;
-            border-radius: 10px;
-            width: 90%;
-            max-width: 500px;
-            text-align: center;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-        }
-        
-        .confirmation-buttons {
-            display: flex;
-            gap: 15px;
-            justify-content: center;
-            margin-top: 25px;
-        }
-        
-        .confirm-btn {
-            background: #dc3545;
-            color: white;
-            border: none;
-            padding: 12px 25px;
-            border-radius: 5px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: background 0.3s;
-            min-width: 100px;
-        }
-        
-        .confirm-btn:hover {
-            background: #c82333;
-        }
-        
-        .cancel-btn {
-            background: #6c757d;
-            color: white;
-            border: none;
-            padding: 12px 25px;
-            border-radius: 5px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: background 0.3s;
-            min-width: 100px;
-        }
-        
-        .cancel-btn:hover {
-            background: #5a6268;
-        }
-        
-        .confirmation-message {
-            font-size: 18px;
-            color: #333;
-            margin-bottom: 10px;
-        }
-        
-        .confirmation-warning {
-            font-size: 14px;
-            color: #dc3545;
-            font-weight: 600;
-        }
-        
-        .loading {
-            text-align: center;
-            padding: 20px;
-            color: #666;
-            font-size: 16px;
-        }
-        .loading .spinner {
-            display: inline-block;
-            width: 24px;
-            height: 24px;
-            border: 3px solid rgba(74, 108, 247, 0.2);
-            border-top-color: #4a6cf7;
-            border-radius: 50%;
-            animation: spin 0.8s linear infinite;
-            vertical-align: middle;
-            margin-right: 10px;
-        }
-        @keyframes spin { to { transform: rotate(360deg); } }
-        .pdf-modal-loading {
-            position: absolute;
-            inset: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            background: #1a1a2e;
-            color: #fff;
-            border-radius: 10px;
-            z-index: 10;
-        }
-        .pdf-modal-loading.hidden { display: none; }
-        .pdf-modal-loading .modal-load-spinner {
-            width: 48px;
-            height: 48px;
-            border: 4px solid rgba(255,255,255,0.3);
-            border-top-color: white;
-            border-radius: 50%;
-            animation: spin 0.8s linear infinite;
-            margin-bottom: 12px;
-        }
-        
-        .error-message {
-            text-align: center;
-            padding: 20px;
-            color: #dc3545;
-            font-size: 16px;
-        }
-        
-        .accident-details {
-            font-size: 12px;
-            color: #666;
-            margin-top: 5px;
-        }
-        
-        /* Loading indicator for export */
-        .export-loading {
-            display: inline-block;
-            width: 16px;
-            height: 16px;
-            border: 2px solid #ffffff;
-            border-radius: 50%;
-            border-top-color: transparent;
-            animation: spin 1s ease-in-out infinite;
-            margin-right: 8px;
-            vertical-align: middle;
-        }
-        
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-        
-        /* Quick Actions */
-        .quick-actions {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 15px;
-            flex-wrap: wrap;
-        }
-        
-        .action-btn {
-            background: #6c757d;
-            color: white;
-            border: none;
-            padding: 8px 15px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 13px;
-            transition: all 0.3s;
-        }
-        
-        .action-btn:hover {
-            background: #5a6268;
-            transform: translateY(-1px);
-        }
-        
-        .action-btn.active {
-            background: #4a6cf7;
-        }
-        
-        /* Export Options Styles */
-        .export-options {
-            margin: 15px 0;
-            padding: 15px;
-            background: #f8f9fa;
-            border-radius: 8px;
-            border: 1px solid #e9ecef;
-        }
-        
-        .export-options strong {
-            display: block;
-            margin-bottom: 10px;
-            color: #495057;
-            font-size: 14px;
-        }
-        
-        .export-options .action-btn {
-            margin-right: 8px;
-            margin-bottom: 5px;
-        }
-        
-        @media (max-width: 1024px) {
-            .data-container {
-                max-width: 95%;
-                padding: 20px;
-            }
-            
-            .header {
-                max-width: 95%;
-            }
-            
-            .data-table th,
-            .data-table td {
-                padding: 12px;
-                font-size: 13px;
-            }
-            
-            .view-btn, .download-btn, .export-btn, .export-all-btn {
-                padding: 6px 10px;
-                font-size: 12px;
-                min-width: 70px;
-            }
-            
-            .filter-controls {
-                gap: 8px;
-            }
-            
-            .date-range-container {
-                flex-direction: column;
-                gap: 5px;
-            }
-            
-            .date-range-separator {
-                display: none;
-            }
-            
-            .export-options .action-btn {
-                margin-right: 5px;
-                font-size: 12px;
-                padding: 6px 10px;
-            }
-        }
-        
-        @media (max-width: 768px) {
-            .header {
-                flex-direction: column;
-                gap: 15px;
-                padding: 15px;
-            }
-            
-            .table-controls {
-                flex-direction: column;
-                align-items: stretch;
-                gap: 10px;
-            }
-            
-            .search-box {
-                width: 100%;
-                margin-bottom: 10px;
-            }
-            
-            .data-table {
-                font-size: 12px;
-                min-width: 780px;
-                display: table;
-            }
-            
-            .data-table th, 
-            .data-table td {
-                padding: 8px 10px;
-                font-size: 12px;
-                white-space: nowrap;
-            }
-            
-            .button-container {
-                flex-direction: column;
-                gap: 5px;
-            }
-            
-            .view-btn, .download-btn, .export-btn, .export-all-btn {
-                width: 100%;
-                text-align: center;
-            }
-            
-            .modal-content {
-                width: 95%;
-                height: 85vh;
-                margin: 5% auto;
-            }
-            
-            .close {
-                top: 10px;
-                right: 15px;
-                font-size: 30px;
-                width: 40px;
-                height: 40px;
-            }
-            
-            .modal-header {
-                top: 10px;
-                left: 15px;
-                font-size: 14px;
-            }
-            
-            .filter-controls {
-                flex-direction: column;
-            }
-            
-            .filter-select, .clear-btn, .export-btn, .export-all-btn {
-                width: 100%;
-                text-align: center;
-            }
-            
-            .confirmation-content {
-                margin: 20% auto;
-                padding: 20px;
-                width: 95%;
-            }
-            
-            .confirmation-buttons {
-                flex-direction: column;
-            }
-            
-            .quick-actions {
-                flex-direction: column;
-            }
-            
-            .action-btn {
-                width: 100%;
-                text-align: center;
-            }
-            
-            .export-options .action-btn {
-                width: 100%;
-                margin-right: 0;
-            }
-        }
-        
-        @media (max-width: 480px) {
-            .data-table {
-                font-size: 11px;
-            }
-            
-            .data-table th, 
-            .data-table td {
-                padding: 6px 8px;
-                font-size: 11px;
-            }
-            
-            .view-btn, .download-btn, .export-btn, .export-all-btn {
-                font-size: 11px;
-                padding: 5px 8px;
-                min-width: 60px;
-            }
-            
-            .page-title h2 {
-                font-size: 18px;
-            }
-            
-            .page-title p {
-                font-size: 14px;
-            }
-            
-            .confirmation-message {
-                font-size: 16px;
-            }
-            
-            .confirm-btn, .cancel-btn {
-                width: 100%;
-            }
-        }
-    </style>
-
-    <!-- External libraries for PDF generation -->
+    <link rel="stylesheet" href="assets/css/bootstrap.min.css">
+    <link rel="stylesheet" href="assets/vendors/bootstrap-icons/bootstrap-icons.css">
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="stylesheet" href="theme-lpkkp.css">
+    <link rel="stylesheet" href="data-page.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
     <script src="pdf-report.js"></script>
-
     <script src="config.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth-compat.js"></script>
@@ -940,22 +57,97 @@
         </div>
     </div>
 
-    <div class="header">
-        <h1>Data Laporan KKP</h1>
-        <div>
-            <a href="index.html" class="back-btn">Laman Utama</a>
-            <a href="profile.html" class="back-btn" style="margin-right:8px;">Profil</a>
-            <button class="logout-btn" id="logoutBtn">Log Keluar</button>
+    <div id="authLoadingOverlay" class="auth-loading-overlay" aria-live="polite" role="status">
+        <div class="auth-loading-card">
+            <div class="auth-loading-brand" aria-hidden="true">
+                <span class="auth-loading-brand-icon"><i class="bi bi-shield-check"></i></span>
+            </div>
+            <h2 class="auth-loading-title">LPKKP</h2>
+            <p class="auth-loading-subtitle">Sistem Laporan Prestasi KKP</p>
+            <div class="auth-loading-spinner" aria-hidden="true"></div>
+            <p class="auth-loading-text">Memuatkan<span class="auth-loading-dots" aria-hidden="true"></span></p>
         </div>
     </div>
-    
-    <div class="data-container">
-        <nav class="breadcrumb" aria-label="Navigasi"><a href="index.html">Laman Utama</a> &gt; <strong>Data Laporan</strong></nav>
-        <div class="page-title">
-            <h2>Data Laporan KKP</h2>
-            <p>View and manage all submitted KKP reports</p>
-        </div>
-        
+
+    <div class="admin-shell hidden" id="dataShell">
+        <div class="sidebar-backdrop" data-sidebar-close></div>
+
+        <aside class="admin-sidebar" id="adminSidebar" aria-label="Navigasi utama">
+            <div class="sidebar-header">
+                <a class="brand-mark" href="index.html" aria-label="LPKKP dashboard">
+                    <span class="brand-icon"><i class="bi bi-shield-check" aria-hidden="true"></i></span>
+                    <span class="brand-copy">
+                        <span class="brand-title">LPKKP</span>
+                        <span class="brand-subtitle">Laporan Prestasi KKP</span>
+                    </span>
+                </a>
+            </div>
+
+            <nav class="sidebar-nav">
+                <a class="nav-link" href="index.html" data-nav="index.html">
+                    <span class="nav-icon"><i class="bi bi-speedometer2" aria-hidden="true"></i></span>
+                    <span class="nav-text">Dashboard</span>
+                </a>
+                <a class="nav-link" href="form.html" data-nav="form.html">
+                    <span class="nav-icon"><i class="bi bi-file-earmark-text" aria-hidden="true"></i></span>
+                    <span class="nav-text">Borang Laporan</span>
+                </a>
+                <a class="nav-link active admin-only-nav" href="data.html" data-nav="data.html" aria-current="page">
+                    <span class="nav-icon"><i class="bi bi-table" aria-hidden="true"></i></span>
+                    <span class="nav-text">Data Laporan</span>
+                </a>
+                <a class="nav-link admin-only-nav" href="admin.html" data-nav="admin.html">
+                    <span class="nav-icon"><i class="bi bi-gear" aria-hidden="true"></i></span>
+                    <span class="nav-text">Panel Admin</span>
+                </a>
+                <a class="nav-link" href="profile.html" data-nav="profile.html">
+                    <span class="nav-icon"><i class="bi bi-person-badge" aria-hidden="true"></i></span>
+                    <span class="nav-text">Profil</span>
+                </a>
+            </nav>
+
+            <div class="sidebar-user">
+                <strong>Pengguna</strong>
+                <small>LPKKP</small>
+            </div>
+
+            <div class="sidebar-footer">
+                <span class="status-dot"></span>
+                <span class="sidebar-footer-text">Sistem aktif</span>
+            </div>
+        </aside>
+
+        <div class="admin-main">
+            <nav class="navbar admin-navbar navbar-expand bg-white">
+                <div class="container-fluid px-3 px-lg-4">
+                    <button class="sidebar-toggle" type="button" data-sidebar-toggle aria-controls="adminSidebar" aria-expanded="true" aria-label="Togol sidebar">
+                        <span></span><span></span><span></span>
+                    </button>
+                    <div class="navbar-actions ms-auto">
+                        <button class="icon-button theme-toggle" type="button" data-theme-toggle aria-label="Tukar tema warna" title="Tukar tema warna">
+                            <i class="bi bi-moon-stars" data-theme-icon aria-hidden="true"></i>
+                        </button>
+                        <a href="index.html" class="btn btn-outline-secondary btn-sm ms-2">Laman Utama</a>
+                        <button class="btn btn-outline-danger btn-sm ms-2" type="button" data-logout>Log Keluar</button>
+                    </div>
+                </div>
+            </nav>
+
+            <main class="dashboard-content">
+                <div class="container-fluid px-3 px-lg-4 py-4 data-page-content">
+                    <div class="page-heading mb-4">
+                        <div class="page-heading-copy">
+                            <span class="page-icon"><i class="bi bi-table" aria-hidden="true"></i></span>
+                            <div>
+                                <p class="eyebrow mb-1">Laporan</p>
+                                <h1 class="h3 mb-1">Data Laporan KKP</h1>
+                                <p class="text-muted mb-0">Lihat dan urus semua laporan KKP yang telah dihantar.</p>
+                            </div>
+                        </div>
+                    </div>
+
+    <div class="data-container panel">
+        <div class="p-3 p-lg-4">
         <!-- Quick Actions -->
         <div class="quick-actions">
             <button class="action-btn" id="sortNewestBtn">Sort: Newest First</button>
@@ -1052,15 +244,22 @@
             <button id="nextBtn">Next</button>
             <button id="lastBtn">Last</button>
         </div>
+        </div>
+    </div>
+                </div>
+            </main>
+        </div>
     </div>
 
+    <script src="assets/js/bootstrap.bundle.min.js"></script>
+    <script src="assets/js/main.js"></script>
+    <script src="layout.js"></script>
     <script>
         const db = getDb();
         const auth = getAuth();
         if (window.jspdf && window.jspdf.jsPDF) window.jsPDF = window.jspdf.jsPDF;
 
         // Get DOM elements
-        const logoutBtn = document.getElementById('logoutBtn');
         const searchInput = document.getElementById('searchInput');
         const tableBody = document.getElementById('tableBody');
         const pdfModal = document.getElementById('pdfModal');
@@ -1142,7 +341,7 @@
             return prefix + abbreviation;
         }
 
-        // Mapping of full headers to their abbreviations (Section A A1–A3, B, C, D)
+        // Mapping of full headers to their abbreviations (Section A A1—A3, B, C, D)
         const headerAbbreviations = {
             // Section A: STATISTIK
             'A1. Jumlah Bilangan Pekerja': 'A1. JBP',
@@ -1275,11 +474,16 @@
         }
 
         window.addEventListener('DOMContentLoaded', () => {
-            requireAuth(() => {
+            requireAuth((user) => {
                 getUserRoleAndDivision((err, info) => {
                     if (err || !info) {
                         window.location.href = 'login.html';
                         return;
+                    }
+                    document.getElementById('authLoadingOverlay').classList.add('hidden');
+                    document.getElementById('dataShell').classList.remove('hidden');
+                    if (typeof initLpkkpShell === 'function') {
+                        initLpkkpShell({ role: info.role || 'user', user: user, profile: info });
                     }
                     if (info.role === 'admin') {
                         loadAllReports();
@@ -1494,7 +698,6 @@
 
         // Setup event listeners
         function setupEventListeners() {
-            logoutBtn.addEventListener('click', handleLogout);
             closeModal.addEventListener('click', closePdfModal);
             
             // Enhanced Sorting with visual feedback
@@ -1803,7 +1006,7 @@
                 th.classList.remove('sort-asc', 'sort-desc');
                 
                 if (th.getAttribute('data-sort') === sortColumn) {
-                    indicator.textContent = sortDirection === 'asc' ? '↑' : '↓';
+                    indicator.textContent = sortDirection === 'asc' ? '\u2191' : '\u2193';
                     th.classList.add(sortDirection === 'asc' ? 'sort-asc' : 'sort-desc');
                 } else {
                     indicator.textContent = '↕';
@@ -2487,7 +1690,7 @@
                                   options.dataSource === 'filtered' ? 'Data Terfilter' : 'Data Halaman Semasa';
             
             console.log(`
-🎯 Eksport Siap!
+ðŸŽ¯ Eksport Siap!
 
 Butiran Eksport:
 - Sumber Data: ${dataSourceText}

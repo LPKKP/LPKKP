@@ -1,547 +1,13 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="ms">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard - Laporan Prestasi (KKP)</title>
-    <link rel="stylesheet" href="common.css">
-    <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-
-        body {
-            background: linear-gradient(135deg, #6e8efb, #a777e3);
-            min-height: 100vh;
-            padding: 20px;
-        }
-
-        .header {
-            width: 100%;
-            max-width: 1200px;
-            background: #4a6cf7;
-            color: white;
-            padding: 20px;
-            text-align: center;
-            border-radius: 10px 10px 0 0;
-            margin: 0 auto;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .header h1 {
-            font-size: 24px;
-            font-weight: 600;
-        }
-
-        .logout-btn {
-            background: #dc3545;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 5px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: background 0.3s;
-        }
-
-        .logout-btn:hover {
-            background: #c82333;
-        }
-
-        .dashboard-container {
-            width: 100%;
-            max-width: 1200px;
-            background: white;
-            border-radius: 0 0 10px 10px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-            padding: 30px;
-            margin: 0 auto;
-            margin-bottom: 20px;
-        }
-
-        .welcome-section {
-            text-align: center;
-            margin-bottom: 30px;
-            padding-bottom: 20px;
-            border-bottom: 1px solid #eee;
-        }
-
-        .welcome-section h2 {
-            color: #4a6cf7;
-            margin-bottom: 10px;
-        }
-
-        .user-email {
-            color: #666;
-            font-style: italic;
-        }
-
-        .stats-cards {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 20px;
-            margin-bottom: 30px;
-        }
-
-        .stat-card {
-            background: #f8f9fa;
-            padding: 20px;
-            border-radius: 8px;
-            text-align: center;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.05);
-            transition: transform 0.3s;
-        }
-
-        .stat-card:hover {
-            transform: translateY(-5px);
-        }
-
-        .stat-card-clickable {
-            cursor: pointer;
-        }
-
-        .stat-card h3 {
-            color: #4a6cf7;
-            margin-bottom: 10px;
-        }
-
-        .stat-number {
-            font-size: 32px;
-            font-weight: bold;
-            color: #333;
-        }
-
-        .stat-number.loading {
-            font-size: 20px;
-            color: #999;
-        }
-
-        .activity-empty {
-            color: #888;
-            font-size: 14px;
-            padding: 15px 0;
-            text-align: center;
-        }
-
-        .dashboard-actions {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 20px;
-            margin-bottom: 30px;
-        }
-
-        .action-card {
-            background: white;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            padding: 25px;
-            text-align: center;
-            transition: all 0.3s;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.05);
-        }
-
-        .action-card:hover {
-            border-color: #4a6cf7;
-            box-shadow: 0 6px 12px rgba(0,0,0,0.1);
-        }
-
-        .action-card h3 {
-            color: #4a6cf7;
-            margin-bottom: 15px;
-        }
-
-        .action-card p {
-            color: #666;
-            margin-bottom: 20px;
-        }
-
-        .action-btn {
-            background: #4a6cf7;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 5px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: background 0.3s;
-            text-decoration: none;
-            display: inline-block;
-        }
-
-        .action-btn:hover {
-            background: #3a5cd8;
-        }
-
-        .recent-activity {
-            background: #f8f9fa;
-            padding: 25px;
-            border-radius: 8px;
-        }
-
-        .recent-activity h3 {
-            color: #4a6cf7;
-            margin-bottom: 20px;
-            padding-bottom: 10px;
-            border-bottom: 1px solid #ddd;
-        }
-
-        .admin-only {
-            display: none !important;
-        }
-
-        .stats-cards.admin-only.visible {
-            display: grid !important;
-        }
-
-        .action-card.admin-only.visible,
-        .recent-activity.admin-only.visible {
-            display: block !important;
-        }
-
-        .activity-item {
-            display: flex;
-            align-items: center;
-            padding: 15px 0;
-            border-bottom: 1px solid #eee;
-        }
-
-        .activity-item:last-child {
-            border-bottom: none;
-        }
-
-        .activity-icon {
-            width: 40px;
-            height: 40px;
-            background: #4a6cf7;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-right: 15px;
-            color: white;
-            font-weight: bold;
-        }
-
-        .activity-content {
-            flex: 1;
-        }
-
-        .activity-content p {
-            margin-bottom: 0;
-            color: #333;
-        }
-
-        .activity-row {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            margin-bottom: 5px;
-        }
-
-        .activity-time {
-            color: #888;
-            font-size: 14px;
-        }
-
-        .activity-view-btn {
-            flex-shrink: 0;
-            padding: 6px 12px;
-            background: #4a6cf7;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            font-size: 13px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: background 0.3s;
-        }
-
-        .activity-view-btn:hover {
-            background: #3a5cd8;
-        }
-
-        .action-btn-wrap {
-            position: relative;
-            display: inline-block;
-        }
-        .admin-pending-badge {
-            position: absolute;
-            top: -6px;
-            right: -6px;
-            min-width: 18px;
-            height: 18px;
-            padding: 0 5px;
-            background: #dc3545;
-            color: #fff;
-            border-radius: 50%;
-            font-size: 11px;
-            font-weight: 700;
-            display: none;
-            align-items: center;
-            justify-content: center;
-            line-height: 1;
-        }
-        .admin-pending-badge.visible {
-            display: flex;
-        }
-
-        .quarter-summary-modal {
-            display: none;
-            position: fixed;
-            z-index: 2000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            overflow: auto;
-            background-color: rgba(0,0,0,0.5);
-        }
-        .quarter-summary-content {
-            background: #fff;
-            margin: 5% auto;
-            padding: 25px;
-            border-radius: 10px;
-            max-width: 500px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-        }
-        .quarter-summary-content h3 {
-            color: #4a6cf7;
-            margin-bottom: 20px;
-            padding-bottom: 10px;
-            border-bottom: 1px solid #eee;
-        }
-        .quarter-summary-section {
-            margin-bottom: 20px;
-        }
-        .quarter-summary-section h4 {
-            font-size: 14px;
-            color: #333;
-            margin-bottom: 8px;
-        }
-        .quarter-summary-list {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-        }
-        .quarter-summary-list li {
-            padding: 6px 10px;
-            margin-bottom: 4px;
-            background: #f8f9fa;
-            border-radius: 4px;
-            font-size: 14px;
-        }
-        .quarter-summary-list.submitted li { border-left: 4px solid #28a745; }
-        .quarter-summary-list.not-submitted li { border-left: 4px solid #dc3545; }
-        .quarter-summary-empty { color: #888; font-size: 14px; font-style: italic; }
-        .quarter-summary-close {
-            display: block;
-            margin-top: 20px;
-            padding: 10px 20px;
-            background: #4a6cf7;
-            color: #fff;
-            border: none;
-            border-radius: 5px;
-            font-size: 14px;
-            font-weight: 600;
-            cursor: pointer;
-            width: 100%;
-        }
-        .quarter-summary-close:hover { background: #3a5cd8; }
-
-        .quarter-select {
-            font: inherit;
-            color: inherit;
-            background: rgba(255,255,255,0.9);
-            border: 1px solid #ccc;
-            border-radius: 6px;
-            padding: 4px 8px;
-            margin-left: 4px;
-            cursor: pointer;
-        }
-        .quarter-select:hover { border-color: #4a6cf7; }
-        .quarter-select:focus { outline: 2px solid #4a6cf7; outline-offset: 2px; }
-
-        .activity-lampiran-btn {
-            flex-shrink: 0;
-            padding: 6px 12px;
-            background: #6f42c1;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            font-size: 13px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: background 0.3s;
-        }
-        .activity-lampiran-btn:hover { background: #5e35b1; }
-
-        .lightbox-overlay {
-            display: none;
-            position: fixed;
-            inset: 0;
-            background: rgba(0,0,0,0.92);
-            z-index: 3000;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-        }
-        .lightbox-overlay.open { display: flex; }
-        .lightbox-content {
-            position: relative;
-            max-width: 95vw;
-            max-height: 95vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-        .lightbox-content img {
-            max-width: 90vw;
-            max-height: 80vh;
-            object-fit: contain;
-            border-radius: 8px;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.5);
-        }
-        .lightbox-caption { color: #fff; margin-top: 12px; text-align: center; font-size: 14px; max-width: 90vw; }
-        .lightbox-close {
-            position: absolute; top: -40px; right: 0;
-            background: rgba(255,255,255,0.2); color: #fff; border: none;
-            width: 40px; height: 40px; border-radius: 50%; font-size: 24px; cursor: pointer; line-height: 1;
-        }
-        .lightbox-close:hover { background: rgba(255,255,255,0.3); }
-        .lightbox-prev, .lightbox-next {
-            position: absolute; top: 50%; transform: translateY(-50%);
-            background: rgba(255,255,255,0.2); color: #fff; border: none;
-            width: 48px; height: 48px; border-radius: 50%; font-size: 24px; cursor: pointer; line-height: 1;
-        }
-        .lightbox-prev { left: -60px; } .lightbox-next { right: -60px; }
-        .lightbox-prev:hover, .lightbox-next:hover { background: rgba(255,255,255,0.35); }
-        .lightbox-counter { color: rgba(255,255,255,0.8); font-size: 13px; margin-top: 8px; }
-        @media (max-width: 768px) { .lightbox-prev { left: 10px; } .lightbox-next { right: 10px; } }
-
-        .pdf-modal {
-            display: none;
-            position: fixed;
-            z-index: 1000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            overflow: auto;
-            background-color: rgba(0,0,0,0.9);
-        }
-        .pdf-modal-content {
-            position: relative;
-            background: #fefefe;
-            margin: 2% auto;
-            padding: 0;
-            border-radius: 10px;
-            width: 90%;
-            height: 90vh;
-            max-width: 1200px;
-        }
-        .pdf-modal .close {
-            position: absolute;
-            top: 15px;
-            right: 25px;
-            color: #fff;
-            font-size: 40px;
-            font-weight: bold;
-            cursor: pointer;
-            z-index: 1001;
-            background: rgba(0,0,0,0.5);
-            border-radius: 50%;
-            width: 50px;
-            height: 50px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            line-height: 1;
-        }
-        .pdf-modal .close:hover { background: rgba(0,0,0,0.7); }
-        .pdf-modal-header {
-            position: absolute;
-            top: 15px;
-            left: 20px;
-            color: #fff;
-            font-size: 16px;
-            font-weight: 600;
-            z-index: 1001;
-            text-shadow: 0 1px 2px rgba(0,0,0,0.5);
-        }
-        .pdf-modal-viewer {
-            width: 100%;
-            height: 100%;
-            border: none;
-            border-radius: 10px;
-        }
-        .pdf-modal-loading {
-            position: absolute;
-            inset: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            background: #1a1a2e;
-            color: #fff;
-            border-radius: 10px;
-            z-index: 10;
-        }
-        .pdf-modal-loading.hidden { display: none; }
-        .pdf-modal-loading .auth-loading-spinner { margin-bottom: 12px; }
-
-        .auth-loading-overlay {
-            position: fixed;
-            inset: 0;
-            background: linear-gradient(135deg, #6e8efb, #a777e3);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            z-index: 9999;
-            transition: opacity 0.25s ease;
-        }
-        .auth-loading-overlay.hidden {
-            pointer-events: none;
-            opacity: 0;
-        }
-        .auth-loading-spinner {
-            width: 48px;
-            height: 48px;
-            border: 4px solid rgba(255,255,255,0.3);
-            border-top-color: white;
-            border-radius: 50%;
-            animation: spin 0.8s linear infinite;
-            margin-bottom: 16px;
-        }
-        .auth-loading-text {
-            color: rgba(255,255,255,0.95);
-            font-size: 16px;
-            font-weight: 500;
-        }
-        .dashboard-content.hidden { display: none; }
-        .skeleton-stat { height: 32px; width: 48px; margin: 0 auto 8px; background: linear-gradient(90deg, #e8e8e8 25%, #f0f0f0 50%, #e8e8e8 75%); background-size: 200% 100%; animation: skeleton-shine 1.2s ease-in-out infinite; border-radius: 4px; }
-        .skeleton-activity { height: 56px; margin-bottom: 12px; background: linear-gradient(90deg, #e8e8e8 25%, #f0f0f0 50%, #e8e8e8 75%); background-size: 200% 100%; animation: skeleton-shine 1.2s ease-in-out infinite; border-radius: 8px; }
-        @keyframes skeleton-shine { to { background-position: 200% 0; } }
-
-        @media (max-width: 768px) {
-            .header {
-                flex-direction: column;
-                gap: 15px;
-            }
-
-            .stats-cards,
-            .dashboard-actions {
-                grid-template-columns: 1fr;
-            }
-        }
-    </style>
+    <link rel="stylesheet" href="assets/css/bootstrap.min.css">
+    <link rel="stylesheet" href="assets/vendors/bootstrap-icons/bootstrap-icons.css">
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="stylesheet" href="theme-lpkkp.css">
 
     <script src="config.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
@@ -553,28 +19,97 @@
     <script src="pdf-report.js"></script>
 </head>
 <body>
-    <div id="authLoadingOverlay" class="auth-loading-overlay" aria-live="polite">
-        <div class="auth-loading-spinner" aria-hidden="true"></div>
-        <span class="auth-loading-text">Memuatkan...</span>
-    </div>
-
-    <div class="dashboard-content hidden" id="dashboardContent">
-    <div class="header">
-        <h1>Dashboard - Laporan KKP</h1>
-        <div style="display:flex;gap:10px;align-items:center;">
-            <a href="profile.html" class="action-btn" style="padding:8px 16px;font-size:14px;">Profil</a>
-            <button class="logout-btn" id="logoutBtn">Log Keluar</button>
+    <div id="authLoadingOverlay" class="auth-loading-overlay" aria-live="polite" role="status">
+        <div class="auth-loading-card">
+            <div class="auth-loading-brand" aria-hidden="true">
+                <span class="auth-loading-brand-icon"><i class="bi bi-shield-check"></i></span>
+            </div>
+            <h2 class="auth-loading-title">LPKKP</h2>
+            <p class="auth-loading-subtitle">Sistem Laporan Prestasi KKP</p>
+            <div class="auth-loading-spinner" aria-hidden="true"></div>
+            <p class="auth-loading-text">Memuatkan<span class="auth-loading-dots" aria-hidden="true"></span></p>
         </div>
     </div>
 
-    <div class="dashboard-container">
-        <nav class="breadcrumb" aria-label="Navigasi"><strong>Laman Utama</strong></nav>
-        <div class="welcome-section">
-            <h2>Selamat datang ke Dashboard</h2>
-            <div class="user-email" id="userEmailDisplay">Log masuk sebagai: </div>
-        </div>
+    <div class="admin-shell hidden" id="dashboardContent">
+        <div class="sidebar-backdrop" data-sidebar-close></div>
 
-        <div class="stats-cards admin-only" id="statsCards">
+        <aside class="admin-sidebar" id="adminSidebar" aria-label="Navigasi utama">
+            <div class="sidebar-header">
+                <a class="brand-mark" href="index.html" aria-label="LPKKP dashboard">
+                    <span class="brand-icon"><i class="bi bi-shield-check" aria-hidden="true"></i></span>
+                    <span class="brand-copy">
+                        <span class="brand-title">LPKKP</span>
+                        <span class="brand-subtitle">Laporan Prestasi KKP</span>
+                    </span>
+                </a>
+            </div>
+
+            <nav class="sidebar-nav">
+                <a class="nav-link active" href="index.html" data-nav="index.html" aria-current="page">
+                    <span class="nav-icon"><i class="bi bi-speedometer2" aria-hidden="true"></i></span>
+                    <span class="nav-text">Dashboard</span>
+                </a>
+                <a class="nav-link" href="form.html" data-nav="form.html">
+                    <span class="nav-icon"><i class="bi bi-file-earmark-text" aria-hidden="true"></i></span>
+                    <span class="nav-text">Borang Laporan</span>
+                </a>
+                <a class="nav-link admin-only-nav" href="data.html" data-nav="data.html">
+                    <span class="nav-icon"><i class="bi bi-table" aria-hidden="true"></i></span>
+                    <span class="nav-text">Data Laporan</span>
+                </a>
+                <a class="nav-link admin-only-nav" href="admin.html" data-nav="admin.html">
+                    <span class="nav-icon"><i class="bi bi-gear" aria-hidden="true"></i></span>
+                    <span class="nav-text">Panel Admin</span>
+                    <span id="adminPendingBadge" class="admin-pending-badge nav-pending-badge" aria-label="Pending registrations">0</span>
+                </a>
+                <a class="nav-link" href="profile.html" data-nav="profile.html">
+                    <span class="nav-icon"><i class="bi bi-person-badge" aria-hidden="true"></i></span>
+                    <span class="nav-text">Profil</span>
+                </a>
+            </nav>
+
+            <div class="sidebar-user">
+                <strong>Pengguna</strong>
+                <small>LPKKP</small>
+            </div>
+
+            <div class="sidebar-footer">
+                <span class="status-dot"></span>
+                <span class="sidebar-footer-text">Sistem aktif</span>
+            </div>
+        </aside>
+
+        <div class="admin-main">
+            <nav class="navbar admin-navbar navbar-expand bg-white">
+                <div class="container-fluid px-3 px-lg-4">
+                    <button class="sidebar-toggle" type="button" data-sidebar-toggle aria-controls="adminSidebar" aria-expanded="true" aria-label="Togol sidebar">
+                        <span></span><span></span><span></span>
+                    </button>
+
+                    <div class="navbar-actions ms-auto">
+                        <button class="icon-button theme-toggle" type="button" data-theme-toggle aria-label="Tukar tema warna" title="Tukar tema warna">
+                            <i class="bi bi-moon-stars" data-theme-icon aria-hidden="true"></i>
+                        </button>
+                        <button class="btn btn-outline-danger btn-sm ms-2" type="button" id="logoutBtn" data-logout>Log Keluar</button>
+                    </div>
+                </div>
+            </nav>
+
+            <main class="dashboard-content">
+                <div class="container-fluid px-3 px-lg-4 py-4">
+                    <div class="page-heading mb-4">
+                        <div class="page-heading-copy">
+                            <span class="page-icon"><i class="bi bi-speedometer2" aria-hidden="true"></i></span>
+                            <div>
+                                <p class="eyebrow mb-1">Laman Utama</p>
+                                <h1 class="h3 mb-1">Dashboard Laporan KKP</h1>
+                                <p class="text-muted mb-0" id="userEmailDisplay">Log masuk sebagai: </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="stats-cards admin-only" id="statsCards">
             <div class="stat-card">
                 <h3>Jumlah Pengguna</h3>
                 <div class="stat-number loading" id="statUsers">—</div>
@@ -594,38 +129,22 @@
             </div>
         </div>
 
-        <div class="dashboard-actions">
-            <div class="action-card">
-                <h3>User Information Form</h3>
-                <p>Fill out the user information form to create a new record</p>
-                <a href="form.html" class="action-btn">Borang Laporan</a>
+        <div class="recent-activity panel mt-3" id="recentActivity">
+            <div class="panel-header">
+                <h2 class="h5 mb-0 section-title" id="recentActivityTitle"><i class="bi bi-clock-history" aria-hidden="true"></i><span>Aktiviti Terkini</span></h2>
             </div>
-            <div class="action-card admin-only" id="viewDataCard">
-                <h3>Data Laporan</h3>
-                <p>Lihat semua laporan yang telah dihantar</p>
-                <a href="data.html" class="action-btn">Lihat Data</a>
-            </div>
-            <div class="action-card admin-only" id="adminPanelCard">
-                <h3>Panel Admin</h3>
-                <p>Urus peranan pengguna (admin sahaja)</p>
-                <span class="action-btn-wrap">
-                    <a href="admin.html" class="action-btn">Admin</a>
-                    <span id="adminPendingBadge" class="admin-pending-badge" aria-label="Pending registrations">0</span>
-                </span>
+            <div class="p-3" id="recentActivityList">
+                <div class="skeleton-activity"></div>
+                <div class="skeleton-activity"></div>
+                <div class="skeleton-activity"></div>
+                <div class="skeleton-activity"></div>
             </div>
         </div>
+                </div>
+            </main>
+        </div>
+    </div>
 
-        <div class="recent-activity" id="recentActivity">
-            <h3 id="recentActivityTitle">Aktiviti Terkini</h3>
-            <div id="recentActivityList">
-                <div class="skeleton-activity"></div>
-                <div class="skeleton-activity"></div>
-                <div class="skeleton-activity"></div>
-                <div class="skeleton-activity"></div>
-            </div>
-        </div>
-    </div>
-    </div>
 
     <div id="quarterSummaryModal" class="quarter-summary-modal" aria-hidden="true">
         <div class="quarter-summary-content">
@@ -665,6 +184,9 @@
         </div>
     </div>
 
+    <script src="assets/js/bootstrap.bundle.min.js"></script>
+    <script src="assets/js/main.js"></script>
+    <script src="layout.js"></script>
     <script>
         const db = getDb();
         const auth = getAuth();
@@ -725,10 +247,15 @@
             }
 
             showDashboard();
+            if (typeof initLpkkpShell === 'function') {
+                initLpkkpShell({
+                    role: role,
+                    user: user,
+                    profile: { username: username, division: division }
+                });
+            }
             if (role === 'admin') {
                 document.getElementById('statsCards').classList.add('visible');
-                document.getElementById('viewDataCard').classList.add('visible');
-                document.getElementById('adminPanelCard').classList.add('visible');
                 loadDashboardData();
             } else {
                 loadMyRecentActivity(email, division);
@@ -915,7 +442,7 @@
                         return '<div class="activity-item">' +
                             '<div class="activity-icon">' + initial + '</div>' +
                             '<div class="activity-content">' +
-                            '<p><strong>' + division + '</strong> – ' + quarter + ' (oleh ' + by + ')</p>' +
+                            '<p><strong>' + division + '</strong> — ' + quarter + ' (oleh ' + by + ')</p>' +
                             '<div class="activity-time">' + time + '</div>' +
                             '</div></div>';
                     }).join('');
@@ -938,8 +465,12 @@
             var recentListEl = document.getElementById('recentActivityList');
             var titleEl = document.getElementById('recentActivityTitle');
             if (!recentListEl) return;
-            if (titleEl) titleEl.textContent = 'Laporan anda terkini';
-            recentListEl.innerHTML = '<div class="activity-empty">Memuatkan…</div>';
+            if (titleEl) {
+                var titleSpan = titleEl.querySelector('span');
+                if (titleSpan) titleSpan.textContent = 'Laporan anda terkini';
+                else titleEl.textContent = 'Laporan anda terkini';
+            }
+            recentListEl.innerHTML = '<div class="activity-empty">Memuatkan...</div>';
             try {
                 var snap;
                 if (userDivision) {
@@ -983,7 +514,7 @@
                             '<div class="activity-icon">' + initial + '</div>' +
                             '<div class="activity-content">' +
                             '<div class="activity-row">' +
-                            '<p><strong>' + division + '</strong> – ' + quarter + '</p>' +
+                            '<p><strong>' + division + '</strong> — ' + quarter + '</p>' +
                             '<button type="button" class="activity-view-btn" data-report-id="' + reportId + '" aria-label="View PDF">Lihat</button>' +
                             lampiranBtn +
                             '</div>' +
@@ -1127,7 +658,7 @@
             var submittedEl = document.getElementById('quarterSummarySubmitted');
             var notSubmittedEl = document.getElementById('quarterSummaryNotSubmitted');
             if (!modal || !titleEl || !submittedEl || !notSubmittedEl) return;
-            titleEl.textContent = 'Laporan ' + data.quarter + ' – Ringkasan';
+            titleEl.textContent = 'Laporan ' + data.quarter + ' — Ringkasan';
             function userLine(u) {
                 var name = (u.username || u.email || '—').trim() || '—';
                 var div = (u.division || '—').trim() || '—';
@@ -1186,12 +717,6 @@
             }
         });
 
-        logoutBtn.addEventListener('click', () => {
-            auth.signOut().finally(() => {
-                localStorage.removeItem('userEmail');
-                window.location.href = 'login.html?logout=1';
-            });
-        });
     </script>
 </body>
 </html>

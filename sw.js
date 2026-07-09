@@ -1,5 +1,5 @@
 // Service worker for offline cache - Laporan KKP
-const CACHE_NAME = 'kkp-v1';
+const CACHE_NAME = 'kkp-v5';
 
 self.addEventListener('install', (event) => {
     self.skipWaiting();

@@ -4,73 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Profil - Laporan KKP</title>
-    <link rel="stylesheet" href="common.css">
-    <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        body {
-            background: linear-gradient(135deg, #6e8efb, #a777e3);
-            min-height: 100vh;
-            padding: 20px;
-        }
-        .header {
-            max-width: 600px;
-            margin: 0 auto 20px;
-            background: #4a6cf7;
-            color: white;
-            padding: 20px;
-            border-radius: 10px 10px 0 0;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .header h1 { font-size: 22px; font-weight: 600; }
-        .header-actions { display: flex; gap: 10px; }
-        .btn {
-            border: none;
-            padding: 8px 16px;
-            font-size: 14px;
-            font-weight: 600;
-            cursor: pointer;
-            border-radius: 5px;
-        }
-        .btn-secondary { background: #6c757d; color: white; text-decoration: none; display: inline-block; }
-        .btn-secondary:hover { background: #5a6268; }
-        .btn-danger { background: #dc3545; color: white; }
-        .btn-danger:hover { background: #c82333; }
-        .btn-primary { background: #4a6cf7; color: white; }
-        .btn-primary:hover { background: #3a5cd8; }
-        .container {
-            max-width: 600px;
-            margin: 0 auto;
-            background: white;
-            border-radius: 0 0 10px 10px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-            padding: 30px;
-        }
-        .breadcrumb { margin-bottom: 20px; font-size: 14px; color: #666; }
-        .breadcrumb a { color: #4a6cf7; text-decoration: none; }
-        .profile-section {
-            margin-bottom: 28px;
-            padding-bottom: 24px;
-            border-bottom: 1px solid #eee;
-        }
-        .profile-section:last-of-type { border-bottom: none; }
-        .profile-section h2 { color: #4a6cf7; font-size: 18px; margin-bottom: 16px; }
-        .input-group { margin-bottom: 16px; }
-        .input-group label { display: block; margin-bottom: 6px; font-weight: 500; color: #333; }
-        .input-group input {
-            width: 100%;
-            padding: 10px 12px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            font-size: 15px;
-        }
-        .input-group input:focus { border-color: #4a6cf7; outline: none; }
-        .hint { font-size: 13px; color: #666; margin-top: 4px; }
-        .message { min-height: 24px; margin-top: 12px; font-size: 14px; }
-        .message.success { color: #28a745; }
-        .message.error { color: #dc3545; }
-    </style>
+    <link rel="stylesheet" href="assets/css/bootstrap.min.css">
+    <link rel="stylesheet" href="assets/vendors/bootstrap-icons/bootstrap-icons.css">
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="stylesheet" href="theme-lpkkp.css">
+
     <script src="config.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth-compat.js"></script>
@@ -79,46 +17,146 @@
     <script src="audit.js"></script>
 </head>
 <body>
-    <div class="header">
-        <h1>Profil</h1>
-        <div class="header-actions">
-            <a href="index.html" class="btn btn-secondary">Laman Utama</a>
-            <button class="btn btn-danger" id="logoutBtn">Log Keluar</button>
+    <div id="authLoadingOverlay" class="auth-loading-overlay" aria-live="polite" role="status">
+        <div class="auth-loading-card">
+            <div class="auth-loading-brand" aria-hidden="true">
+                <span class="auth-loading-brand-icon"><i class="bi bi-shield-check"></i></span>
+            </div>
+            <h2 class="auth-loading-title">LPKKP</h2>
+            <p class="auth-loading-subtitle">Sistem Laporan Prestasi KKP</p>
+            <div class="auth-loading-spinner" aria-hidden="true"></div>
+            <p class="auth-loading-text">Memuatkan<span class="auth-loading-dots" aria-hidden="true"></span></p>
         </div>
     </div>
-    <div class="container">
-        <nav class="breadcrumb" aria-label="Navigasi"><a href="index.html">Laman Utama</a> &gt; <strong>Profil</strong></nav>
 
-        <div class="profile-section">
-            <h2>Username</h2>
-            <p class="hint">Nama pengguna (wajib). Digunakan untuk ciri-ciri masa hadapan.</p>
-            <div class="input-group">
-                <label for="username">Username</label>
-                <input type="text" id="username" placeholder="Masukkan username" minlength="2" maxlength="50" required>
-            </div>
-            <button type="button" class="btn btn-primary" id="saveUsernameBtn">Simpan username</button>
-            <div class="message" id="usernameMessage"></div>
-        </div>
+    <div class="admin-shell hidden" id="profileShell">
+        <div class="sidebar-backdrop" data-sidebar-close></div>
 
-        <div class="profile-section">
-            <h2>Tukar kata laluan</h2>
-            <p class="hint">Masukkan kata laluan semasa dan kata laluan baharu.</p>
-            <div class="input-group">
-                <label for="currentPassword">Kata laluan semasa</label>
-                <input type="password" id="currentPassword" placeholder="Kata laluan semasa" autocomplete="current-password">
+        <aside class="admin-sidebar" id="adminSidebar" aria-label="Navigasi utama">
+            <div class="sidebar-header">
+                <a class="brand-mark" href="index.html" aria-label="LPKKP dashboard">
+                    <span class="brand-icon"><i class="bi bi-shield-check" aria-hidden="true"></i></span>
+                    <span class="brand-copy">
+                        <span class="brand-title">LPKKP</span>
+                        <span class="brand-subtitle">Laporan Prestasi KKP</span>
+                    </span>
+                </a>
             </div>
-            <div class="input-group">
-                <label for="newPassword">Kata laluan baharu</label>
-                <input type="password" id="newPassword" placeholder="Sekurang-kurangnya 6 aksara" minlength="6" autocomplete="new-password">
+
+            <nav class="sidebar-nav">
+                <a class="nav-link" href="index.html" data-nav="index.html">
+                    <span class="nav-icon"><i class="bi bi-speedometer2" aria-hidden="true"></i></span>
+                    <span class="nav-text">Dashboard</span>
+                </a>
+                <a class="nav-link" href="form.html" data-nav="form.html">
+                    <span class="nav-icon"><i class="bi bi-file-earmark-text" aria-hidden="true"></i></span>
+                    <span class="nav-text">Borang Laporan</span>
+                </a>
+                <a class="nav-link admin-only-nav" href="data.html" data-nav="data.html">
+                    <span class="nav-icon"><i class="bi bi-table" aria-hidden="true"></i></span>
+                    <span class="nav-text">Data Laporan</span>
+                </a>
+                <a class="nav-link admin-only-nav" href="admin.html" data-nav="admin.html">
+                    <span class="nav-icon"><i class="bi bi-gear" aria-hidden="true"></i></span>
+                    <span class="nav-text">Panel Admin</span>
+                </a>
+                <a class="nav-link active" href="profile.html" data-nav="profile.html" aria-current="page">
+                    <span class="nav-icon"><i class="bi bi-person-badge" aria-hidden="true"></i></span>
+                    <span class="nav-text">Profil</span>
+                </a>
+            </nav>
+
+            <div class="sidebar-user">
+                <strong>Pengguna</strong>
+                <small>LPKKP</small>
             </div>
-            <div class="input-group">
-                <label for="confirmPassword">Sahkan kata laluan baharu</label>
-                <input type="password" id="confirmPassword" placeholder="Taip semula kata laluan baharu" autocomplete="new-password">
+
+            <div class="sidebar-footer">
+                <span class="status-dot"></span>
+                <span class="sidebar-footer-text">Sistem aktif</span>
             </div>
-            <button type="button" class="btn btn-primary" id="changePasswordBtn">Tukar kata laluan</button>
-            <div class="message" id="passwordMessage"></div>
+        </aside>
+
+        <div class="admin-main">
+            <nav class="navbar admin-navbar navbar-expand bg-white">
+                <div class="container-fluid px-3 px-lg-4">
+                    <button class="sidebar-toggle" type="button" data-sidebar-toggle aria-controls="adminSidebar" aria-expanded="true" aria-label="Togol sidebar">
+                        <span></span><span></span><span></span>
+                    </button>
+                    <div class="navbar-actions ms-auto">
+                        <button class="icon-button theme-toggle" type="button" data-theme-toggle aria-label="Tukar tema warna" title="Tukar tema warna">
+                            <i class="bi bi-moon-stars" data-theme-icon aria-hidden="true"></i>
+                        </button>
+                        <a href="index.html" class="btn btn-outline-secondary btn-sm ms-2">Laman Utama</a>
+                        <button class="btn btn-outline-danger btn-sm ms-2" type="button" data-logout>Log Keluar</button>
+                    </div>
+                </div>
+            </nav>
+
+            <main class="dashboard-content">
+                <div class="container-fluid px-3 px-lg-4 py-4">
+                    <div class="page-heading mb-4">
+                        <div class="page-heading-copy">
+                            <span class="page-icon"><i class="bi bi-person-badge" aria-hidden="true"></i></span>
+                            <div>
+                                <p class="eyebrow mb-1">Akaun</p>
+                                <h1 class="h3 mb-1">Profil Pengguna</h1>
+                                <p class="text-muted mb-0">Urus username dan kata laluan anda.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row g-3">
+                        <div class="col-12 col-lg-6">
+                            <div class="panel h-100">
+                                <div class="panel-header">
+                                    <h2 class="h5 mb-0 section-title"><i class="bi bi-person" aria-hidden="true"></i><span>Username</span></h2>
+                                </div>
+                                <div class="p-3 p-lg-4">
+                                    <p class="text-muted small mb-3">Nama pengguna (wajib). Digunakan untuk ciri-ciri masa hadapan.</p>
+                                    <div class="mb-3">
+                                        <label class="form-label" for="username">Username</label>
+                                        <input class="form-control" type="text" id="username" placeholder="Masukkan username" minlength="2" maxlength="50" required>
+                                    </div>
+                                    <button type="button" class="btn btn-primary" id="saveUsernameBtn">Simpan username</button>
+                                    <div class="lpkkp-form-message mt-3" id="usernameMessage"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-12 col-lg-6">
+                            <div class="panel h-100">
+                                <div class="panel-header">
+                                    <h2 class="h5 mb-0 section-title"><i class="bi bi-key" aria-hidden="true"></i><span>Tukar kata laluan</span></h2>
+                                </div>
+                                <div class="p-3 p-lg-4">
+                                    <p class="text-muted small mb-3">Masukkan kata laluan semasa dan kata laluan baharu.</p>
+                                    <div class="mb-3">
+                                        <label class="form-label" for="currentPassword">Kata laluan semasa</label>
+                                        <input class="form-control" type="password" id="currentPassword" placeholder="Kata laluan semasa" autocomplete="current-password">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label" for="newPassword">Kata laluan baharu</label>
+                                        <input class="form-control" type="password" id="newPassword" placeholder="Sekurang-kurangnya 6 aksara" minlength="6" autocomplete="new-password">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label" for="confirmPassword">Sahkan kata laluan baharu</label>
+                                        <input class="form-control" type="password" id="confirmPassword" placeholder="Taip semula kata laluan baharu" autocomplete="new-password">
+                                    </div>
+                                    <button type="button" class="btn btn-primary" id="changePasswordBtn">Tukar kata laluan</button>
+                                    <div class="lpkkp-form-message mt-3" id="passwordMessage"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
         </div>
     </div>
+
+    <script src="assets/js/bootstrap.bundle.min.js"></script>
+    <script src="assets/js/main.js"></script>
+    <script src="layout.js"></script>
     <script>
         const auth = getAuth();
         const db = getDb();
@@ -130,24 +168,36 @@
         const confirmPasswordEl = document.getElementById('confirmPassword');
         const changePasswordBtn = document.getElementById('changePasswordBtn');
         const passwordMessage = document.getElementById('passwordMessage');
-        const logoutBtn = document.getElementById('logoutBtn');
 
         function showUsernameMessage(text, isError) {
             usernameMessage.textContent = text;
-            usernameMessage.className = 'message ' + (isError ? 'error' : 'success');
+            usernameMessage.className = 'lpkkp-form-message' + (isError ? '' : ' success-message');
+            if (isError) usernameMessage.classList.remove('success-message');
         }
         function showPasswordMessage(text, isError) {
             passwordMessage.textContent = text;
-            passwordMessage.className = 'message ' + (isError ? 'error' : 'success');
+            passwordMessage.className = 'lpkkp-form-message' + (isError ? '' : ' success-message');
+            if (isError) passwordMessage.classList.remove('success-message');
+        }
+
+        function showProfilePage(user, info) {
+            document.getElementById('authLoadingOverlay').classList.add('hidden');
+            document.getElementById('profileShell').classList.remove('hidden');
+            if (typeof initLpkkpShell === 'function') {
+                initLpkkpShell({ role: (info && info.role) || 'user', user: user, profile: info || {} });
+            }
         }
 
         requireAuth(function(user) {
             const params = new URLSearchParams(window.location.search);
             if (params.get('msg') === 'set_username') {
                 usernameMessage.textContent = 'Sila tetapkan username anda (wajib).';
-                usernameMessage.className = 'message error';
+                usernameMessage.classList.remove('success-message');
             }
             const email = (user.email || '').toLowerCase();
+            getUserRoleAndDivision(function(err, info) {
+                showProfilePage(user, info || {});
+            });
             db.collection('userRoles').doc(email).get()
                 .then(function(snap) {
                     const data = snap.exists ? snap.data() : {};
@@ -166,7 +216,6 @@
                 showUsernameMessage('Username sekurang-kurangnya 2 aksara.', true);
                 return;
             }
-            const auth = getAuth();
             const user = auth && auth.currentUser;
             if (!user) {
                 showUsernameMessage('Sila log masuk semula.', true);
@@ -180,7 +229,7 @@
                         targetEmail: email,
                         details: 'Username dikemas kini'
                     });
-                    showUsernameMessage('Username telah disimpan.');
+                    showUsernameMessage('Username telah disimpan.', false);
                     saveUsernameBtn.disabled = false;
                 })
                 .catch(function(err) {
@@ -221,7 +270,7 @@
                         targetEmail: (user.email || '').toLowerCase(),
                         details: 'Kata laluan ditukar oleh pengguna'
                     });
-                    showPasswordMessage('Kata laluan telah ditukar.');
+                    showPasswordMessage('Kata laluan telah ditukar.', false);
                     currentPasswordEl.value = '';
                     newPasswordEl.value = '';
                     confirmPasswordEl.value = '';
@@ -235,13 +284,6 @@
                     }
                     changePasswordBtn.disabled = false;
                 });
-        });
-
-        logoutBtn.addEventListener('click', function() {
-            auth.signOut().finally(function() {
-                localStorage.removeItem('userEmail');
-                window.location.href = 'login.html?logout=1';
-            });
         });
     </script>
 </body>
